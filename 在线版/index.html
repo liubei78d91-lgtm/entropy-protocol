@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<meta name="application-name" content="逆熵协议">
+<meta name="description" content="逆熵协议：三十日交易所 —— 单机文字策略游戏">
+<title>逆熵协议 · 三十日交易所</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ 标题页 ============ -->
+<section id="screen-title" class="screen">
+  <div class="title-wrap">
+    <div class="logo-mark">§</div>
+    <h1 class="game-title">逆熵协议</h1>
+    <p class="game-sub">三十日交易所</p>
+    <p class="tagline" id="tagline"></p>
+
+    <div class="title-buttons">
+      <button class="btn btn-primary" id="btn-new">签下契约</button>
+      <button class="btn" id="btn-continue">继续上次的契约</button>
+      <button class="btn btn-ghost" id="btn-rules">协议条款</button>
+      <button class="btn btn-ghost" id="btn-about">关于</button>
+    </div>
+
+    <p class="foot-note">
+      <span id="title-version"></span> · 单机 · 无需联网 · 自动存档
+    </p>
+    <p class="foot-note warn hidden" id="title-warn">当前页面不能保存进度（浏览器禁止本地存储），关掉就没了</p>
+  </div>
+</section>
+
+<!-- ============ 规则页 ============ -->
+<section id="screen-rules" class="screen hidden">
+  <header class="topbar">
+    <button class="icon-btn" id="btn-rules-back">←</button>
+    <div class="topbar-title">协议条款</div>
+    <div class="topbar-right"></div>
+  </header>
+  <div class="scroll-body">
+    <p class="lead">在签字之前，你有权读完它。读完之后，你仍然可以后悔——但只有一次。</p>
+    <div id="rules-body"></div>
+    <h3 class="section-h">每日行动（每项消耗 1 行动点）</h3>
+    <div id="rules-actions" class="rules-actions"></div>
+    <div class="rules-foot">
+      <button class="btn btn-primary wide" id="btn-rules-start">我读完了，签</button>
+      <button class="btn btn-ghost wide" id="btn-rules-close">先不签</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 关于页 ============ -->
+<section id="screen-about" class="screen hidden">
+  <header class="topbar">
+    <button class="icon-btn" id="btn-about-back">←</button>
+    <div class="topbar-title">关于</div>
+    <div class="topbar-right"></div>
+  </header>
+  <div class="scroll-body">
+    <div id="about-body"></div>
+    <button class="btn btn-ghost wide danger" id="btn-clear-save">清除存档</button>
+  </div>
+</section>
+
+<!-- ============ 游戏主界面 ============ -->
+<section id="screen-game" class="screen hidden">
+  <header class="hud">
+    <div class="hud-day">
+      <span class="hud-day-num" id="hud-day">1</span>
+      <span class="hud-day-of">/ 30 天</span>
+    </div>
+    <div class="hud-ap">
+      <span class="ap-label">AP</span>
+      <div class="ap-pips" id="hud-ap"></div>
+      <div class="ap-num" id="hud-ap-num"></div>
+    </div>
+    <button class="icon-btn" id="btn-menu">≡</button>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="frags" id="frags"></div>
+
+  <div class="log" id="log"></div>
+
+  <div class="actions-wrap">
+    <div class="actions-h">
+      <span>今日行动</span>
+      <span class="muted" id="actions-hint"></span>
+    </div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <div class="footer-bar">
+    <p class="persist-hint hidden" id="persist-hint">⚠ 当前页面不能存档，关掉就没了</p>
+    <button class="btn btn-primary wide" id="btn-endday">结束这一天 →</button>
+  </div>
+</section>
+
+<!-- ============ 结局页 ============ -->
+<section id="screen-ending" class="screen hidden">
+  <div class="ending-wrap">
+    <div class="ending-kicker">第三十日 · 结算</div>
+    <h2 class="ending-title" id="ending-title"></h2>
+    <div class="ending-text" id="ending-text"></div>
+    <div class="ending-stats" id="ending-stats"></div>
+    <div class="ending-buttons">
+      <button class="btn btn-primary wide" id="btn-again">再来一次</button>
+      <button class="btn btn-ghost wide" id="btn-to-title">回到门厅</button>
+    </div>
+    <p class="foot-note">这只是十三个结局里的一个。</p>
+  </div>
+</section>
+
+<!-- ============ 弹层 ============ -->
+<div id="modal-root" class="modal-root hidden"></div>
+
+<script src="content.js"></script>
+<script src="engine.js"></script>
+<script src="ui.js"></script>
+</body>
+</html>
