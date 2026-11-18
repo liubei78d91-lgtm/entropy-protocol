@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 逆熵协议 v2.0.1 · 单文件网页版 · 双击就能玩，不需要联网 -->
+<!-- 逆熵协议 v2.0.2 · 单文件网页版 · 双击就能玩，不需要联网 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -584,7 +584,7 @@ body::before{
    —— 想更新游戏：改这个文件，然后把 version 加一
    ========================================================= */
 window.CONTENT = {
-  version: "2.0.1",
+  version: "2.0.2",
   title: "逆熵协议",
   subtitle: "三十日交易所",
   tagline: "用记忆、健康与信用，向世界预支三十天。",
@@ -1379,6 +1379,10 @@ window.CONTENT = {
   ],
 
   changelog: [
+    { v: "2.0.2", date: "2026-11-18", notes: [
+      "委托栏现在会显示奖励金额，完成目标后立即标记「✓ 已完成，结束这一天时发放」",
+      "奖励仍然是结束这一天时统一结算（和熵税、投资同一次结算）"
+    ]},
     { v: "2.0.1", date: "2026-11-18", notes: [
       "修复：卖掉的记忆在之后获得记忆时可能重新出现（现在会永久消失）",
       "修复：读档时不会补判规则共鸣，旧档同时持有两枚碎片现在也会触发",
@@ -2493,6 +2497,15 @@ window.CONTENT = {
       });
     },
     takeAchievement: function () { var x = lastAchv; lastAchv = null; return x; },
+    contractStatus: function () {
+      if (!S || !S.contract) return null;
+      var c = contractById(S.contract.id);
+      if (!c) return null;
+      var ok = false;
+      try { ok = !!c.check(S.today || {}, S, api); } catch (e) {}
+      return { text: S.contract.text, hint: S.contract.hint, rewardText: c.rewardText,
+               done: ok, settled: !!S.contract.done, failed: !!S.contract.failed };
+    },
     takeCodex: function () { var x = lastCodex; lastCodex = null; return x; },
     codexBook: function () {
       return (C.codex || []).map(function (k) {
@@ -2680,7 +2693,10 @@ window.CONTENT = {
     var c = S.contract;
     if (!c || c.done || c.failed) { el.classList.add("hidden"); el.textContent = ""; return; }
     el.classList.remove("hidden");
-    el.textContent = "【今日委托】" + c.text + "　·　" + c.hint;
+    var st = E.contractStatus();
+    var tail = st && st.done ? "　✓ 已完成，结束这一天时发放" : "";
+    var reward = st && st.rewardText ? "　→ +" + st.rewardText : "";
+    el.textContent = "【今日委托】" + c.text + "（" + c.hint + "）" + reward + tail;
   }
 
   function renderMemoryBar(S) {
