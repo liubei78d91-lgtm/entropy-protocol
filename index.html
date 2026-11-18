@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 逆熵协议 v1.1.2 · 单文件网页版 · 双击就能玩，不需要联网 -->
+<!-- 逆熵协议 v1.2.1 · 单文件网页版 · 双击就能玩，不需要联网 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -47,6 +47,7 @@ body::before{
 }
 .hidden{display:none !important;}
 #screen-game{overflow-y:auto;overscroll-behavior:contain;}
+#screen-game > *{flex-shrink:0;}
 .num{font-variant-numeric:tabular-nums;}
 
 /* ---------- 屏幕骨架 ---------- */
@@ -185,12 +186,12 @@ body::before{
 
 /* ---------- 日志 ---------- */
 .log{
-  flex:0 0 auto;height:clamp(108px,22vh,190px);overflow-y:auto;
+  flex:0 0 auto;height:clamp(120px,24vh,200px);overflow-y:auto;
   background:var(--panel-2);border:1px solid var(--line-soft);border-radius:var(--radius);
-  padding:9px 11px;font-size:12.5px;line-height:1.72;margin-bottom:10px;
-  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 14px);
-          mask-image:linear-gradient(180deg,transparent 0,#000 14px);
+  padding:10px 12px;font-size:12.5px;line-height:1.72;margin-bottom:10px;
+  scrollbar-width:none;-ms-overflow-style:none;
 }
+.log::-webkit-scrollbar{display:none;width:0;height:0;}
 .log div{margin-bottom:1px;word-break:break-word;}
 .log .good{color:var(--good);}
 .log .bad{color:var(--bad);}
@@ -224,9 +225,9 @@ body::before{
 
 /* ---------- 底部 ---------- */
 .footer-bar{
-  position:sticky;bottom:calc(-1 * (env(safe-area-inset-bottom) + 10px));
-  padding:8px 0 calc(env(safe-area-inset-bottom) + 2px);
-  background:linear-gradient(180deg,rgba(11,15,20,0),#0b0f14 38%);
+  position:sticky;bottom:calc(-1 * (env(safe-area-inset-bottom) + 10px));z-index:5;
+  padding:22px 0 calc(env(safe-area-inset-bottom) + 2px);
+  background:linear-gradient(180deg,rgba(11,15,20,0) 0,#0b0f14 62%);
   margin-top:auto;
 }
 .muted{color:#55657a;}
@@ -280,8 +281,8 @@ body::before{
 
 /* ---------- 结局 ---------- */
 .ending-wrap{
-  flex:1;display:flex;flex-direction:column;justify-content:center;
-  text-align:center;padding:10px 4px;
+  flex:1;display:flex;flex-direction:column;justify-content:flex-start;overflow-y:auto;
+  text-align:center;padding:22px 4px;
 }
 .ending-kicker{font-size:10px;letter-spacing:4px;color:var(--dim);}
 .ending-title{
@@ -312,6 +313,62 @@ body::before{
   .game-title{letter-spacing:5px;}
 }
 
+
+/* ---------- v1.2 新增 ---------- */
+/* 每日小报 */
+.newsbar{
+  display:flex;align-items:flex-start;gap:7px;margin:6px 0 4px;padding:6px 9px;border-radius:8px;
+  background:rgba(210,153,34,.08);border:1px solid rgba(210,153,34,.26);
+  color:#d9c08a;font-size:11.5px;line-height:1.5;
+}
+.nb-tag{
+  flex:0 0 auto;font-size:10px;letter-spacing:1px;color:var(--event);
+  border:1px solid rgba(210,153,34,.45);border-radius:4px;padding:0 4px;margin-top:1px;
+}
+.nb-text{
+  flex:1 1 auto;min-width:0;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.nb-mul{flex:0 0 auto;font-size:11px;color:#b99b52;white-space:nowrap;margin-top:1px;}
+/* 被典当掉的日志 */
+.log .lost{color:#4a5a6b;font-style:italic;letter-spacing:1px;}
+.log .news{color:#b99b52;}
+/* 结局图鉴 */
+.g-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.g-card{
+  background:var(--panel-2);border:1px solid var(--line-soft);border-radius:10px;
+  padding:9px 10px;min-height:84px;opacity:.7;
+}
+.g-card.got{opacity:1;border-color:rgba(232,179,57,.35);background:rgba(232,179,57,.05);}
+.g-title{font-size:13px;font-weight:700;color:var(--text-hi);margin-bottom:4px;letter-spacing:1px;}
+.g-card:not(.got) .g-title{color:#54657a;}
+.g-body{font-size:11.5px;color:var(--dim);line-height:1.55;}
+.g-card.got .g-body{color:#c8b389;}
+.g-ach{margin-top:4px;}
+.g-count{font-size:12px;color:var(--dim);margin:0 0 6px;}
+.g-line{display:flex;flex-direction:column;padding:7px 2px;border-bottom:1px solid var(--line-soft);opacity:.5;}
+.g-line.got{opacity:1;}
+.g-line .gn{font-size:13px;color:var(--text-hi);}
+.g-line.got .gn{color:var(--accent);}
+.g-line .gd{font-size:11.5px;color:var(--dim);}
+/* 开局身份 */
+.choice.origin{padding:13px 14px;}
+.choice .perk{font-size:11px;color:var(--accent);margin-top:5px;letter-spacing:.5px;}
+/* 人生报告 */
+.life-report{margin:2px 0 12px;text-align:left;}
+.life-report .section-h{margin:0 0 8px;}
+.rep-line{display:flex;justify-content:space-between;gap:10px;padding:5px 2px;border-bottom:1px solid var(--line-soft);font-size:13px;}
+.rep-line .rk{color:var(--dim);flex:0 0 auto;}
+.rep-line .rv{color:var(--text-hi);text-align:right;word-break:break-word;}
+/* 提示条 */
+.toast{
+  position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 26px);
+  transform:translateX(-50%);z-index:60;
+  background:rgba(19,26,35,.96);border:1px solid rgba(232,179,57,.45);
+  color:var(--accent);font-size:13px;padding:9px 16px;border-radius:999px;
+  box-shadow:0 8px 26px rgba(0,0,0,.5);max-width:88vw;text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -327,6 +384,7 @@ body::before{
     <div class="title-buttons">
       <button class="btn btn-primary" id="btn-new">签下契约</button>
       <button class="btn" id="btn-continue">继续上次的契约</button>
+      <button class="btn btn-ghost" id="btn-gallery">结局图鉴</button>
       <button class="btn btn-ghost" id="btn-rules">协议条款</button>
       <button class="btn btn-ghost" id="btn-about">关于</button>
     </div>
@@ -370,6 +428,21 @@ body::before{
   </div>
 </section>
 
+<!-- ============ 结局图鉴 ============ -->
+<section id="screen-gallery" class="screen hidden">
+  <header class="topbar">
+    <button class="icon-btn" id="btn-gallery-back">←</button>
+    <div class="topbar-title">结局图鉴</div>
+    <div class="topbar-right"></div>
+  </header>
+  <div class="scroll-body">
+    <p class="lead" id="gallery-summary"></p>
+    <div class="g-grid" id="gallery-endings"></div>
+    <h3 class="section-h">成就</h3>
+    <div class="g-ach" id="gallery-achievements"></div>
+  </div>
+</section>
+
 <!-- ============ 游戏主界面 ============ -->
 <section id="screen-game" class="screen hidden">
   <header class="hud">
@@ -386,6 +459,12 @@ body::before{
   </header>
 
   <div class="stats" id="stats"></div>
+
+  <div class="newsbar hidden" id="newsbar">
+    <span class="nb-tag">晚报</span>
+    <span class="nb-text" id="news-text"></span>
+    <span class="nb-mul" id="news-mul"></span>
+  </div>
 
   <div class="frags" id="frags"></div>
 
@@ -412,6 +491,8 @@ body::before{
     <h2 class="ending-title" id="ending-title"></h2>
     <div class="ending-text" id="ending-text"></div>
     <div class="ending-stats" id="ending-stats"></div>
+    <div class="life-report" id="life-report"></div>
+    <button class="btn btn-ghost wide" id="btn-copy-report">复制这份战绩</button>
     <div class="ending-buttons">
       <button class="btn btn-primary wide" id="btn-again">再来一次</button>
       <button class="btn btn-ghost wide" id="btn-to-title">回到门厅</button>
@@ -421,6 +502,7 @@ body::before{
 </section>
 
 <!-- ============ 弹层 ============ -->
+<div id="toast" class="toast hidden"></div>
 <div id="modal-root" class="modal-root hidden"></div>
 
 <script>
@@ -430,11 +512,11 @@ body::before{
    —— 想更新游戏：改这个文件，然后把 version 加一
    ========================================================= */
 window.CONTENT = {
-  version: "1.1.2",
+  version: "1.2.1",
   title: "逆熵协议",
   subtitle: "三十日交易所",
   tagline: "用记忆、健康与信用，向世界预支三十天。",
-  release: "2026-11-17",
+  release: "2026-11-18",
 
   /* ---------------- 数值配置（改这里就能调平衡） ---------------- */
   config: {
@@ -752,6 +834,7 @@ window.CONTENT = {
   endings: [
     {
       id: "entropy", title: "熵灭", tone: "bad",
+      clue: "十条规则同时沉默——那是你为捷径付出的最后一次加价。",
       when: function (S) { return S.entropy >= 10; },
       text: [
         "熵值满了。不是爆炸，是安静——你身上的每一条规则同时停止生效，像一整栋楼同时关灯。",
@@ -761,6 +844,7 @@ window.CONTENT = {
     },
     {
       id: "death", title: "死亡", tone: "bad",
+      clue: "健康归零时，账目仍然要结。",
       when: function (S) { return S.health <= 0; },
       text: [
         "你倒在柜台前。R-07 站起来，动作很轻，像怕吵醒什么。",
@@ -770,6 +854,7 @@ window.CONTENT = {
     },
     {
       id: "forgotten", title: "遗忘者", tone: "bad",
+      clue: "记忆归零，你还在走，只是不知道要去哪。",
       when: function (S) { return S.memory <= 0; },
       text: [
         "记忆归零的那一刻，你还在走廊里走。你知道自己在走，但不知道要去哪。",
@@ -779,6 +864,7 @@ window.CONTENT = {
     },
     {
       id: "nameless", title: "无名者", tone: "bad",
+      clue: "有人出价买你的名字，你点了头。",
       when: function (S) { return S.flags.soldName; },
       text: [
         "六万现金打进你账上的时候，拍卖台上一片安静。主持人念了成交价，然后念了一个编号——没有名字的编号。",
@@ -788,6 +874,7 @@ window.CONTENT = {
     },
     {
       id: "twin", title: "双生", tone: "good",
+      clue: "帮过她，也赎回了自己，身上不剩一点熵。",
       when: function (S) { return S.flags.helpClerk && S.flags.boughtName && S.entropy === 0; },
       text: [
         "结算日的钟敲了三十下。你把自己的名字还给自己，把她的名字还给她。",
@@ -797,6 +884,7 @@ window.CONTENT = {
     },
     {
       id: "named", title: "归名者", tone: "good",
+      clue: "把名字买回来的那个下午。",
       when: function (S) { return S.flags.boughtName; },
       text: [
         "你把那张纸片折好，放进内袋，贴着心脏。",
@@ -806,6 +894,7 @@ window.CONTENT = {
     },
     {
       id: "broken", title: "契约终结", tone: "good",
+      clue: "你找到了能让它作废的那一页。",
       when: function (S) { return S.flags.brokeContract; },
       text: [
         "你把撕成两半的契约扔在桌上。交易所安静了很久，久到你以为它已经死了。",
@@ -815,6 +904,7 @@ window.CONTENT = {
     },
     {
       id: "master", title: "交易所主人", tone: "bad",
+      clue: "坐进那把椅子——或者攒够能买下它的东西。",
       when: function (S) { return S.flags.tookSeat || (S.influence >= 100 && S.cash >= 50000); },
       text: [
         "你补上了名字，坐进那张椅子。桌面上摊着下一位契约者的协议，最后一栏空着。",
@@ -824,6 +914,7 @@ window.CONTENT = {
     },
     {
       id: "antientropy", title: "逆熵者", tone: "good",
+      clue: "七枚碎片拼成的徽章，加上一个干净的熵。",
       when: function (S) { return S.fragments.indexOf("badge") >= 0 && S.entropy === 0; },
       text: [
         "七枚碎片在你胸口拼成一枚徽章。它没有图案，只有一圈很细的刻痕——像一个人反复写下又擦掉的名字。",
@@ -833,6 +924,7 @@ window.CONTENT = {
     },
     {
       id: "recorder", title: "记录者", tone: "info",
+      clue: "读完档案，并且还记得足够多的事。",
       when: function (S) { return S.flags.archiveRead && S.memory >= 50; },
       text: [
         "你带着三千多份协议的摘要离开交易所。它们在你脑子里排成一列，像一栋楼的窗户。",
@@ -842,6 +934,7 @@ window.CONTENT = {
     },
     {
       id: "free", title: "自由人", tone: "good",
+      clue: "带着四万五、好身体和完整的记忆走出去。",
       when: function (S) { return S.net >= 45000 && S.health >= 50 && S.memory >= 50; },
       text: [
         "结算日的账本合上时，你既不欠债，也不欠自己。",
@@ -851,6 +944,7 @@ window.CONTENT = {
     },
     {
       id: "survivor", title: "普通幸存者", tone: "info",
+      clue: "什么也没发生。账清了，你走了。",
       when: function (S) { return S.net > 0; },
       text: [
         "三十天到了。交易所把你的契约归档，在“已结清”那一栏盖了个章。",
@@ -860,6 +954,7 @@ window.CONTENT = {
     },
     {
       id: "bankrupt", title: "破产者", tone: "bad",
+      clue: "账是负的，它说这不叫违约，叫延期。",
       when: function () { return true; },
       text: [
         "结算日，账本上的数字是负的。交易所很有耐心，它说这不叫违约，叫延期。",
@@ -869,7 +964,111 @@ window.CONTENT = {
     }
   ],
 
+  /* ---------- 开局身份 ---------- */
+  origins: [
+    {
+      id: "broke", name: "破产者",
+      desc: "上一份合约让你输得干干净净。你带着一千五走进来，还有一身没人要的手艺。",
+      perks: ["初始现金 1500", "典当记忆收益 +25%"],
+      cash: 1500, credit: 35, memory: 100, health: 100,
+      taxMul: 1, restMul: 1, pawnMul: 1.25
+    },
+    {
+      id: "clerk", name: "前交易所职员",
+      desc: "你在这里干了六年。你知道哪一栏可以少写一个零，也知道少写之后的后果。",
+      perks: ["熵税 -20%", "初始信用 70"],
+      cash: 3000, credit: 70, memory: 100, health: 90,
+      taxMul: 0.8, restMul: 1, pawnMul: 1
+    },
+    {
+      id: "sick", name: "重病者",
+      desc: "医生说你还有三十天。你决定把这三十天换成别的东西，随便什么都行。",
+      perks: ["初始健康 70", "休息 +50%", "初始现金 4500"],
+      cash: 4500, credit: 50, memory: 90, health: 70,
+      taxMul: 1, restMul: 1.5, pawnMul: 1
+    }
+  ],
+
+  /* ---------- 每日小报 ---------- */
+  headlines: [
+    { t: "交易所临时工缺口扩大，工价上浮一成五。", m: 1.15 },
+    { t: "新人涌入，工价被压到地板。", m: 0.9 },
+    { t: "交易所加开夜班，余款次日记账。", m: 1.1 },
+    { t: "搬运区缺人，按件计酬，现场结。", m: 1.05 },
+    { t: "全员大会占用整个上午，你今天只能干半天。", m: 0.95 },
+    { t: "城南工厂爆单，工价翻着往上涨。", m: 1.2 },
+    { t: "停工检查，今天没人敢开工。", m: 0.9 },
+    { t: "记忆收购价持平。柜台前仍然排着很长的队。", m: 1.0 },
+    { t: "交易所公告：本月不再上调熵税。", m: 1.0 },
+    { t: "旧城改造招工，日结，只收能站满八小时的人。", m: 1.1 },
+    { t: "有人把「星期四」押给了柜台，工价随之浮动。", m: 1.05 },
+    { t: "雨。整座城市都在屋檐下等着。", m: 0.95 },
+    { t: "工价与前日持平。柜台后的人换了新的袖扣。", m: 1.0 },
+    { t: "交易所把加班写进了条款，也把加班费写了进去。", m: 1.15 },
+    { t: "一名债务人主动放弃姓名，理由是名字太重。", m: 0.95 },
+    { t: "记忆维修店开张，生意兴隆。", m: 1.0 },
+    { t: "全城停电三小时。交易照常。", m: 0.9 },
+    { t: "拍卖行清仓，工价连带上浮。", m: 1.05 },
+    { t: "新规：今日所有临时契约按 1.1 倍结算。", m: 1.1 },
+    { t: "没人记得昨天发生过什么。工价也是。", m: 1.0 }
+  ],
+
+  /* ---------- 墓志铭 ---------- */
+  epitaphs: {
+    entropy: "他收集了足够多的规则，然后一条也不再属于他。",
+    death: "他到最后一刻都在算账，只是算错了自己。",
+    forgotten: "他忘了所有事，只记得该怎么走出那道门——但他没有走。",
+    nameless: "他把名字卖了。价格很好。",
+    twin: "两个人一起走出去，交易所少记了一个号码。",
+    named: "他把名字赎回来的时候，柜台员第一次抬头看了他。",
+    broken: "他找到了那一页，然后把它撕了。",
+    master: "他终于坐上了那把椅子。椅子上没有人。",
+    antientropy: "他带着一枚徽章和一身干净的熵，走出了玻璃门。",
+    recorder: "他读过所有档案，所以他记得每一个被划掉的名字。",
+    free: "他带走了钱、人情和足够多的记忆。门在身后合上，他没有回头。",
+    survivor: "三十天，账清了。他活了下来，没多也没少。",
+    bankrupt: "账是负的。交易所说这不叫违约，叫延期。"
+  },
+
+  /* ---------- 成就 ---------- */
+  achievements: [
+    { id: "first", name: "第一笔交易", desc: "做出第一个行动。", when: function (S) { return S.stats.actions >= 1; } },
+    { id: "fullDay", name: "一天用满", desc: "同一天里用掉 3 点行动点。", when: function (S) { return S.stats.dayActs >= 3; } },
+    { id: "cash10k", name: "现金过万", desc: "手上的现金超过一万。", when: function (S) { return S.cash >= 10000; } },
+    { id: "clean", name: "零债离场", desc: "活到第二十天以后，一笔债都不欠。", when: function (S) { return S.day >= 20 && S.debt <= 0; } },
+    { id: "nine", name: "九枚规则", desc: "同时持有 9 枚碎片。", when: function (S) { return S.fragments.filter(function (x) { return x !== "badge"; }).length >= 9; } },
+    { id: "badge", name: "徽章浮现", desc: "拼出逆熵者徽章。", when: function (S) { return S.fragments.indexOf("badge") >= 0; } },
+    { id: "allScenes", name: "十个节点", desc: "读完十个关键节点。", when: function (S) { return S.seen.length >= 10; } },
+    { id: "pawned", name: "典当五十点", desc: "累计典当 50 点记忆。", when: function (S) { return (S.stats.memPawned || 0) >= 50; } },
+    { id: "gambler", name: "手气不错", desc: "高风险投资赢五次。", when: function (S) { return S.stats.investWin >= 5; } },
+    { id: "entropist", name: "游走在边缘", desc: "熵值到 8，还活着。", when: function (S) { return !S.over && S.entropy >= 8; } },
+    { id: "survive", name: "活满三十天", desc: "把三十天走完。", when: function (S) { return S.over && S.day >= 30; } },
+    { id: "e_master", name: "那把椅子", desc: "抵达【交易所主人】。", when: function (S) { return S.endingId === "master"; } },
+    { id: "e_antientropy", name: "逆熵者", desc: "抵达【逆熵者】。", when: function (S) { return S.endingId === "antientropy"; } },
+    { id: "e_twin", name: "双生", desc: "抵达【双生】。", when: function (S) { return S.endingId === "twin"; } },
+    { id: "e_free", name: "自由人", desc: "抵达【自由人】。", when: function (S) { return S.endingId === "free"; } },
+    { id: "e_bankrupt", name: "破产者", desc: "抵达【破产者】。", when: function (S) { return S.endingId === "bankrupt"; } },
+    { id: "e_forgotten", name: "遗忘者", desc: "抵达【遗忘者】。", when: function (S) { return S.endingId === "forgotten"; } },
+    { id: "endings3", name: "结局猎人", desc: "收集 3 个结局。", when: function (S, M) { return M.count >= 3; } },
+    { id: "endings7", name: "半个档案馆", desc: "收集 7 个结局。", when: function (S, M) { return M.count >= 7; } },
+    { id: "endings13", name: "十三个都见过", desc: "收集全部 13 个结局。", when: function (S, M) { return M.count >= 13; } }
+  ],
+
   changelog: [
+    { v: "1.2.1", date: "2026-11-18", notes: [
+      "修复：日志顶部渐隐遮罩把第一行裁成半透明，看起来像文字重叠／重影",
+      "日志不再显示滚动条，高度略增，首行不再贴边",
+      "游戏页元素禁止被 flex 压缩，避免内容溢出后互相叠在一起",
+      "每日小报改为三栏排版（标签／标题最多两行／工价倍率），不再挤成两行错位"
+    ]},
+    { v: "1.2.0", date: "2026-11-18", notes: [
+      "新增结局图鉴：13 张卡跨存档收集，未解锁显示谜语",
+      "新增典当代价：当掉记忆时，你的日志会真的被吃掉几行",
+      "新增每日小报：每天一条头条，影响当日工价",
+      "新增三种开局身份：破产者 / 前交易所职员 / 重病者",
+      "新增结局人生报告与可复制战绩",
+      "新增 20 个成就"
+    ]},
     { v: "1.1.2", date: "2026-11-17", notes: [
       "新增单文件网页版：一个 HTML 就能发给别人玩（双击/浏览器打开）",
       "存档不可用时会明确提示，不再静默丢进度"
@@ -922,6 +1121,29 @@ window.CONTENT = {
     }
   })();
 
+  /* ---------- 跨存档记忆（图鉴 / 成就） ---------- */
+  var META_KEY = "entropy_protocol_meta_v1";
+  var META = { endings: {}, achievements: {}, runs: 0 };
+  function loadMeta() {
+    try {
+      var raw = store.getItem(META_KEY);
+      if (!raw) return;
+      var m = JSON.parse(raw);
+      if (m && typeof m === "object") {
+        META.endings = m.endings || {};
+        META.achievements = m.achievements || {};
+        META.runs = m.runs || 0;
+      }
+    } catch (e) {}
+  }
+  function saveMeta() { try { store.setItem(META_KEY, JSON.stringify(META)); } catch (e) {} }
+  function endingCount() {
+    var n = 0;
+    for (var k in META.endings) if (META.endings[k]) n++;
+    return n;
+  }
+  loadMeta();
+
   var S = null;
   var subs = [];
   var choice = null;        // 需要玩家做选择（碎片三选一）
@@ -940,6 +1162,23 @@ window.CONTENT = {
     S.log.push({ m: msg, c: cls || "info" });
     if (S.log.length > 260) S.log.shift();
   }
+  // 典当记忆时，日志里真的会少掉几行——你读过的东西也没了。
+  var LOST_TEXT = "▓▓▓▓▓▓　这一段你想不起来了　▓▓▓▓▓▓";
+  function eatLog(n) {
+    if (!S || !S.log || !S.log.length) return 0;
+    var pool = [];
+    for (var i = 0; i < S.log.length; i++) {
+      if (S.log[i].c !== "lost" && S.log[i].c !== "sys") pool.push(i);
+    }
+    if (!pool.length) return 0;
+    var count = Math.min(pool.length, Math.max(1, Math.round(n)));
+    for (var k = 0; k < count; k++) {
+      var at = pool.splice(Math.floor(Math.random() * pool.length), 1)[0];
+      S.log[at] = { m: LOST_TEXT, c: "lost" };
+      S.lostCount = (S.lostCount || 0) + 1;
+    }
+    return count;
+  }
   function emit(type) {
     for (var i = 0; i < subs.length; i++) {
       try { subs[i](type || "change"); } catch (e) { /* 忽略 UI 异常 */ }
@@ -956,7 +1195,8 @@ window.CONTENT = {
 
   /* ---------- 数值 ---------- */
   function taxFor(day) {
-    return Math.round(CFG.taxBase + CFG.taxGrowth * day + Math.max(0, S.cash) * CFG.taxCashRate);
+    var base = CFG.taxBase + CFG.taxGrowth * day + Math.max(0, S.cash) * CFG.taxCashRate;
+    return Math.round(base * ((S && S.taxMul) || 1));
   }
   function netWorth() {
     var v = CFG.valuation;
@@ -1045,7 +1285,8 @@ window.CONTENT = {
       desc: "+" + CFG.workPay + " 现金 · -" + CFG.workHealth + " 健康 · +2 信用",
       can: function () { return S.health > CFG.workHealth ? null : "健康不够，你站不住了"; },
       run: function () {
-        var v = gain(CFG.workPay);
+        var pay = Math.round(CFG.workPay * (S.newsMul || 1));
+        var v = gain(pay);
         addHealth(-CFG.workHealth);
         S.credit = clamp(S.credit + 2, 0, 100);
         log("打工：+" + v + " 现金，-" + CFG.workHealth + " 健康", "good");
@@ -1055,7 +1296,11 @@ window.CONTENT = {
       id: "rest", name: "休息", cost: 1, tag: "恢复",
       desc: "+" + CFG.restHealth + " 健康",
       can: function () { return S.health >= CFG.maxHealth ? "健康已经满了" : null; },
-      run: function () { addHealth(CFG.restHealth); log("休息：+" + CFG.restHealth + " 健康", "good"); }
+      run: function () {
+        var r = Math.round(CFG.restHealth * (S.restMul || 1));
+        addHealth(r);
+        log("休息：+" + r + " 健康", "good");
+      }
     },
     {
       id: "social", name: "社交", cost: 1, tag: "影响力",
@@ -1140,10 +1385,13 @@ window.CONTENT = {
         amt = Math.min(amt, Math.floor(S.memory / 10) * 10);
         var units = amt / 10;
         S.memory -= amt;
-        gain(units * 800, { raw: true });
+        var pay = Math.round(units * 800 * (S.pawnMul || 1));
+        gain(pay, { raw: true });
         S.credit = clamp(S.credit - 2, 0, 100);
+        S.stats.memPawned = (S.stats.memPawned || 0) + amt;
         addEntropy(1);
-        log("典当 " + amt + " 记忆，+" + units * 800 + " 现金，熵 +1", "bad");
+        eatLog(units + 1);
+        log("典当 " + amt + " 记忆，+" + pay + " 现金，熵 +1", "bad");
       }
     },
     {
@@ -1244,11 +1492,16 @@ window.CONTENT = {
     S.net = netWorth();
     var e = pickEnding();
     S.endingId = e.id;
+    if (S.stats) S.stats.peakNet = Math.max(S.stats.peakNet || 0, S.net);
+    META.endings[e.id] = META.endings[e.id] || Date.now();
+    META.runs = (META.runs || 0) + 1;
+    saveMeta();
     log("════════════════════", "event");
     log("第 " + S.day + " 天，" + S.endReason + "。", "event");
     log("净资产：" + S.net + " 现金等值", "sys");
     log("结局：【" + e.title + "】", "event");
     log("════════════════════", "event");
+    checkAchievements();
     save();
     emit("ending");
   }
@@ -1265,6 +1518,8 @@ window.CONTENT = {
     S.day = n;
     S.usedToday = {};
     S.crash = false;
+    if (!S.stats) S.stats = { actions: 0, investWin: 0, investLose: 0 };
+    S.stats.dayActs = 0;
 
     // 1. 熵税
     var tax = taxFor(n);
@@ -1284,6 +1539,7 @@ window.CONTENT = {
         var hl = Math.min(15, Math.ceil(owe / 100));
         addHealth(-hl);
         addMemory(-hl);
+        eatLog(1);
         log("第 " + n + " 天 · 熵税差 " + owe + "，交易所取走 " + hl + " 健康与 " + hl + " 记忆", "bad");
       }
     }
@@ -1315,6 +1571,14 @@ window.CONTENT = {
     var r = Math.floor(Math.random() * 6) + 1;
     S.market = +(1 + (r - 3) * 0.05).toFixed(2);
     log("市场波动系数：" + S.market, "sys");
+
+    // 6.5 今日小报（影响当日工价）
+    if (C.headlines && C.headlines.length) {
+      var hl = C.headlines[Math.floor(Math.random() * C.headlines.length)];
+      S.news = hl.t;
+      S.newsMul = hl.m;
+      log("【晚报】" + hl.t, "news");
+    }
 
     // 7. 随机事件（每 3 天）
     if (n % 3 === 0) triggerEvent();
@@ -1387,6 +1651,7 @@ window.CONTENT = {
       log("投资结算：返还 " + ret + " 现金" + (S.crash ? "（崩盘减半）" : ""), "good");
     }
     S.pending = [];
+    if (S.stats) S.stats.peakNet = Math.max(S.stats.peakNet || 0, netWorth());
     if (S.day >= CFG.days) { finish("三十日到期"); return; }
     startDay(S.day + 1);
     emit("day");
@@ -1395,6 +1660,8 @@ window.CONTENT = {
   function postAction() {
     checkForget();
     if (checkDeath()) { emit("ending"); return; }
+    if (S.stats) S.stats.peakNet = Math.max(S.stats.peakNet || 0, netWorth());
+    checkAchievements();
     checkStory();
     save();
     emit("change");
@@ -1412,6 +1679,7 @@ window.CONTENT = {
     if (res === "abort") { emit("change"); return false; }
     S.ap -= a.cost;
     S.stats.actions++;
+    S.stats.dayActs = (S.stats.dayActs || 0) + 1;
     postAction();
     return true;
   }
@@ -1427,6 +1695,8 @@ window.CONTENT = {
       amt = Math.min(amt - (amt % 10), Math.floor(S.memory / 10) * 10);
       if (amt < 10) { S.usedToday[id] = false; log("至少需要 10 记忆", "bad"); return false; }
       S.memory -= amt;
+      S.stats.memPawned = (S.stats.memPawned || 0) + amt;
+      eatLog(amt / 10);
       gain(amt / 10 * 1000, { raw: true });
       log("记忆套现：" + amt + " 记忆 → " + (amt / 10 * 1000) + " 现金", "info");
     } else if (id === "influenceCash") {
@@ -1441,6 +1711,7 @@ window.CONTENT = {
       var memLoss = Math.ceil(shift / 800) * 5;
       S.debt -= shift;
       addMemory(-memLoss);
+      eatLog(Math.ceil(memLoss / 5));
       log("债务转移：债务 -" + shift + "，记忆 -" + memLoss, "bad");
     } else return false;
 
@@ -1495,22 +1766,59 @@ window.CONTENT = {
     if (eff.log) log(eff.log, eff.tone || "event");
   }
 
+  /* ---------- 成就 ---------- */
+  var lastAchv = null;
+  function checkAchievements() {
+    if (!S || !C.achievements) return [];
+    var got = [];
+    var m = { endings: META.endings, count: endingCount() };
+    for (var i = 0; i < C.achievements.length; i++) {
+      var a = C.achievements[i];
+      if (META.achievements[a.id]) continue;
+      var ok = false;
+      try { ok = !!a.when(S, m); } catch (err) { ok = false; }
+      if (ok) {
+        META.achievements[a.id] = Date.now();
+        got.push(a);
+        lastAchv = a.name;
+        log("✦ 成就解锁：" + a.name, "good");
+      }
+    }
+    if (got.length) saveMeta();
+    return got;
+  }
+
   /* ---------- 生命周期 ---------- */
   var api = {};
 
-  function newGame() {
+  var lastOrigin = null;
+  function pickOrigin(id) {
+    var list = C.origins || [];
+    for (var i = 0; i < list.length; i++) if (list[i].id === id) return list[i];
+    return list.length ? list[0] : null;
+  }
+
+  function newGame(originId) {
+    var o = pickOrigin(originId || lastOrigin);
+    if (!o) o = { id: "std", cash: CFG.startCash, health: CFG.startHealth, memory: CFG.startMemory,
+                  credit: CFG.startCredit, taxMul: 1, restMul: 1, pawnMul: 1 };
+    lastOrigin = o.id;
     S = {
       version: C.version,
       day: 1, ap: CFG.apBase,
-      cash: CFG.startCash, health: CFG.startHealth, memory: CFG.startMemory,
-      credit: CFG.startCredit, influence: 0, ep: 0, entropy: 0, debt: 0, intel: 0,
+      origin: o.id,
+      cash: o.cash, health: o.health, memory: o.memory, credit: o.credit,
+      taxMul: o.taxMul || 1, restMul: o.restMul || 1, pawnMul: o.pawnMul || 1,
+      news: "", newsMul: 1, lostCount: 0,
+      influence: 0, ep: 0, entropy: 0, debt: 0, intel: 0,
       fragments: [], pending: [], market: 1, crash: false,
       flags: {}, seen: [], log: [], over: false, endingId: null, endReason: "",
-      usedToday: {}, stats: { actions: 0, investWin: 0, investLose: 0 },
+      usedToday: {}, stats: { actions: 0, investWin: 0, investLose: 0, memPawned: 0, dayActs: 0, peakNet: 0 },
       net: 0, lastTax: 0, lastReply: null
     };
     choice = null; story = null; storyQueue = [];
     log("你走进交易所。玻璃门在你身后合上，外面那座城市正在忘记自己是什么。", "story");
+    if (o.name) log("身份：" + o.name + "。" + (o.desc || ""), "story");
     startDay(1);
     emit("new");
   }
@@ -1521,6 +1829,17 @@ window.CONTENT = {
       if (!raw) return false;
       S = JSON.parse(raw);
       if (!S || !S.version) return false;
+      if (!S.stats) S.stats = { actions: 0, investWin: 0, investLose: 0 };
+      if (!S.stats.memPawned) S.stats.memPawned = 0;
+      if (!S.stats.dayActs) S.stats.dayActs = 0;
+      if (!S.stats.peakNet) S.stats.peakNet = 0;
+      if (!S.taxMul) S.taxMul = 1;
+      if (!S.restMul) S.restMul = 1;
+      if (!S.pawnMul) S.pawnMul = 1;
+      if (!S.news) S.news = "";
+      if (!S.newsMul) S.newsMul = 1;
+      if (!S.lostCount) S.lostCount = 0;
+      if (S.origin) lastOrigin = S.origin;
       choice = null; story = null; storyQueue = [];
       if (!S.over) checkStory();
       emit("load");
@@ -1544,7 +1863,11 @@ window.CONTENT = {
         else if (choice) why = "先做一个选择";
         else if (S.ap < a.cost) why = "行动点不足";
         else why = a.can();
-        return { id: a.id, name: a.name, cost: a.cost, desc: a.desc, tag: a.tag,
+        var d = a.desc;
+        if (a.id === "pawn" && S.pawnMul && S.pawnMul !== 1) {
+          d = "每 10 记忆换 " + Math.round(800 * S.pawnMul) + " 现金 · 熵 +1";
+        }
+        return { id: a.id, name: a.name, cost: a.cost, desc: d, tag: a.tag,
                  amount: !!a.amount, choice: !!a.choice, disabled: !!why, reason: why };
       });
     },
@@ -1572,6 +1895,30 @@ window.CONTENT = {
       if (!S || !S.endingId) return null;
       for (var i = 0; i < C.endings.length; i++) if (C.endings[i].id === S.endingId) return C.endings[i];
       return null;
+    },
+    origins: function () { return C.origins || []; },
+    meta: function () { return META; },
+    endingsSeen: endingCount,
+    endingsTotal: function () { return C.endings.length; },
+    achievementBook: function () {
+      return (C.achievements || []).map(function (a) {
+        return { id: a.id, name: a.name, desc: a.desc, got: !!META.achievements[a.id] };
+      });
+    },
+    takeAchievement: function () { var x = lastAchv; lastAchv = null; return x; },
+    report: function () {
+      if (!S) return null;
+      return {
+        ep: (C.epitaphs || {})[S.endingId] || "",
+        net: S.net,
+        peak: (S.stats && S.stats.peakNet) || S.net || 0,
+        lost: S.lostCount || 0,
+        pawned: (S.stats && S.stats.memPawned) || 0,
+        acts: (S.stats && S.stats.actions) || 0,
+        seen: endingCount(),
+        total: C.endings.length,
+        id: S.endingId
+      };
     }
   };
 
@@ -1585,7 +1932,8 @@ window.CONTENT = {
   "use strict";
   var C = window.CONTENT, E = window.ENGINE;
   var $ = function (id) { return document.getElementById(id); };
-  var SCREENS = ["title", "rules", "about", "game", "ending"];
+  var SCREENS = ["title", "rules", "about", "gallery", "game", "ending"];
+  var reportText = "";
   var modalState = { type: null, key: null };
   var returnTo = "title";
 
@@ -1663,6 +2011,7 @@ window.CONTENT = {
     $("hud-ap-num").textContent = S.ap;
 
     renderStats(S);
+    renderNews(S);
     renderFrags(S);
     renderActions(S);
     renderLog(S);
@@ -1692,6 +2041,16 @@ window.CONTENT = {
       html += '<div class="stat ' + it[2] + '"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + "</div></div>";
     });
     $("stats").innerHTML = html;
+  }
+
+  function renderNews(S) {
+    var nb = $("newsbar");
+    if (!nb) return;
+    var on = !!(S.news);
+    nb.classList.toggle("hidden", !on);
+    if (!on) { nb.textContent = ""; return; }
+    $("news-text").textContent = S.news;
+    $("news-mul").textContent = (S.newsMul && S.newsMul !== 1) ? "工价 ×" + S.newsMul.toFixed(2) : "工价 ×1.00";
   }
 
   function renderFrags(S) {
@@ -1846,6 +2205,70 @@ window.CONTENT = {
     $("frag-close").onclick = closeModal;
   }
 
+  /* ================= 提示条 ================= */
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $("toast");
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.remove("hidden");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.add("hidden"); }, 2600);
+  }
+  function copyText(text, okMsg) {
+    if (!text) return;
+    var fallback = function () { window.prompt("复制下面这段：", text); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
+    } else fallback();
+  }
+
+  /* ================= 图鉴 ================= */
+  function openGallery() {
+    buildGallery();
+    showScreen("gallery");
+  }
+  function buildGallery() {
+    var seen = E.meta().endings || {};
+    var n = 0;
+    var cards = "";
+    (C.endings || []).forEach(function (e) {
+      var got = !!seen[e.id];
+      if (got) n++;
+      var body = got ? ((e.text && e.text[0]) || "") : ("谜语：" + (e.clue || "尚未收集"));
+      cards += '<div class="g-card' + (got ? " got" : "") + '">' +
+        '<div class="g-title">' + (got ? esc(e.title) : "？？？") + "</div>" +
+        '<div class="g-body">' + esc(body) + "</div>" +
+        "</div>";
+    });
+    $("gallery-summary").textContent = "已收集 " + n + " / " + (C.endings || []).length +
+      " 个结局 · 共完成 " + (E.meta().runs || 0) + " 次契约";
+    $("gallery-endings").innerHTML = cards;
+
+    var ach = E.achievementBook();
+    var gotA = ach.filter(function (a) { return a.got; }).length;
+    var ah = '<p class="g-count">成就 ' + gotA + " / " + ach.length + "</p>";
+    ach.forEach(function (a) {
+      ah += '<div class="g-line' + (a.got ? " got" : "") + '"><span class="gn">' +
+        (a.got ? "✦ " : "· ") + esc(a.name) + '</span><span class="gd">' + esc(a.desc) + "</span></div>";
+    });
+    $("gallery-achievements").innerHTML = ah;
+  }
+
+  /* ================= 开局身份 ================= */
+  function openOriginPicker() {
+    var html = '<div class="modal-kicker">签字之前</div><h2>你是谁？</h2>' +
+      '<p>三个身份，三种开局。之后的路一样不好走。</p><div class="choices">';
+    E.origins().forEach(function (o) {
+      html += '<button class="choice origin" data-origin="' + o.id + '"><strong>' + esc(o.name) + "</strong>" +
+        '<span class="req" style="color:#7d8fa3">' + esc(o.desc) + "</span>" +
+        '<span class="perk">' + (o.perks || []).map(function (p) { return esc(p); }).join(" · ") + "</span></button>";
+    });
+    html += "</div>";
+    openModal(html);
+    modalState = { type: "origin", key: "origin" };
+  }
+
   /* ================= 结局 ================= */
   function renderEnding() {
     var S = E.state();
@@ -1862,11 +2285,31 @@ window.CONTENT = {
     $("ending-stats").innerHTML = stats.map(function (it) {
       return '<div class="stat"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + "</div></div>";
     }).join("");
+
+    var rep = E.report();
+    if (rep) {
+      var lines = [
+        ["结局收集", rep.seen + " / " + rep.total],
+        ["墓志铭", rep.ep || "——"],
+        ["最高净资产", rep.peak],
+        ["行动次数", rep.acts],
+        ["典当记忆", rep.pawned + " 点" + (rep.lost ? "，抹掉了 " + rep.lost + " 段回忆" : "")]
+      ];
+      $("life-report").innerHTML = '<h3 class="section-h">人生报告</h3>' + lines.map(function (it) {
+        return '<div class="rep-line"><span class="rk">' + esc(it[0]) + '</span><span class="rv">' + esc(it[1]) + "</span></div>";
+      }).join("");
+      reportText = "《逆熵协议》· 结局【" + e.title + "】(" + rep.seen + "/" + rep.total + ")\n净资产 " + S.net +
+        " · 最高 " + rep.peak + " · 行动 " + rep.acts + " 次\n" + (rep.ep || "");
+    }
+    var cb = $("btn-copy-report");
+    if (cb) cb.onclick = function () { copyText(reportText, "战绩已复制"); };
     showScreen("ending");
   }
 
   /* ================= 同步 ================= */
   function sync() {
+    var achv = E.takeAchievement();
+    if (achv) toast("✦ 成就解锁：" + achv);
     var S = E.state();
     if (!S) { showScreen("title"); return; }
     if (S.over) { renderEnding(); return; }
@@ -1886,6 +2329,13 @@ window.CONTENT = {
     var t = ev.target.closest ? ev.target.closest("button, .frag") : null;
     if (!t) return;
 
+    // 开局身份
+    if (t.dataset && t.dataset.origin) {
+      closeModal();
+      E.newGame(t.dataset.origin);
+      sync();
+      return;
+    }
     // 剧情选项
     if (t.dataset && t.dataset.choice !== undefined) {
       var idx = Number(t.dataset.choice);
@@ -2003,7 +2453,7 @@ window.CONTENT = {
     var btnContinue = $("btn-continue");
     if (!E.hasSave()) { btnContinue.disabled = true; btnContinue.textContent = "继续上次的契约（暂无存档）"; }
 
-    $("btn-new").onclick = function () { E.newGame(); sync(); };
+    $("btn-new").onclick = openOriginPicker;
     btnContinue.onclick = function () {
       if (!E.loadGame()) { alert("存档读取失败，可能来自旧版本。"); return; }
       sync();
@@ -2012,7 +2462,7 @@ window.CONTENT = {
     $("btn-about").onclick = function () { openAbout(false); };
     $("btn-rules-back").onclick = goBack;
     $("btn-rules-close").onclick = goBack;
-    $("btn-rules-start").onclick = function () { E.newGame(); sync(); };
+    $("btn-rules-start").onclick = openOriginPicker;
     $("btn-about-back").onclick = goBack;
     $("btn-clear-save").onclick = function () {
       if (window.confirm("确定清除存档？这一局就没了。")) {
@@ -2020,9 +2470,11 @@ window.CONTENT = {
         alert("存档已清除。");
       }
     };
+    $("btn-gallery").onclick = openGallery;
+    $("btn-gallery-back").onclick = function () { showScreen("title"); };
     $("btn-menu").onclick = openMenu;
     $("btn-endday").onclick = function () { E.endDay(); sync(); };
-    $("btn-again").onclick = function () { E.clearSave(); E.newGame(); sync(); };
+    $("btn-again").onclick = function () { E.clearSave(); openOriginPicker(); };
     $("btn-to-title").onclick = function () { showScreen("title"); };
     $("modal-root").onclick = function (ev) {
       if (ev.target === $("modal-root") && modalState.type !== "story" && modalState.type !== "choice") closeModal();
