@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 逆熵协议 v2.1.0 · 单文件网页版 · 双击就能玩，不需要联网 -->
+<!-- 逆熵协议 v2.1.1 · 单文件网页版 · 双击就能玩，不需要联网 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -423,6 +423,14 @@ body::before{
   margin:10px 0;line-height:1.8;
 }
 
+
+/* 手动复制弹层 */
+.copy-area{
+  width:100%;min-height:120px;margin:8px 0 0;padding:10px;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:10px;
+  color:var(--text);font-family:inherit;font-size:12.5px;line-height:1.7;resize:vertical;
+}
+
 </style>
 </head>
 <body>
@@ -584,7 +592,7 @@ body::before{
    —— 想更新游戏：改这个文件，然后把 version 加一
    ========================================================= */
 window.CONTENT = {
-  version: "2.1.0",
+  version: "2.1.1",
   title: "逆熵协议",
   subtitle: "三十日交易所",
   tagline: "用记忆、健康与信用，向世界预支三十天。",
@@ -1379,6 +1387,11 @@ window.CONTENT = {
   ],
 
   changelog: [
+    { v: "2.1.1", date: "2026-11-18", notes: [
+      "修复：安卓包点「清除存档 / 删除槽位 / 撕毁契约」没有任何反应（WebView 吞掉了 confirm 弹窗）",
+      "所有确认改成游戏内弹层，网页版和安卓版行为一致",
+      "复制战绩失败时的兜底改成可长按复制的文本框"
+    ]},
     { v: "2.1.0", date: "2026-11-18", notes: [
       "安卓版新增「检查更新」：启动时自动检查，有新版本直接提示并跳转下载",
       "更新提示可以用「以后再说」跳过，同一版本不再重复打扰",
@@ -2903,9 +2916,27 @@ window.CONTENT = {
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { t.classList.add("hidden"); }, 2600);
   }
+  // 游戏内确认框：不依赖 window.confirm（安卓 WebView 里 confirm 可能不弹、直接返回 false）
+  function confirmBox(text, okText, onOk) {
+    openModal('<div class="modal-kicker">确认</div><h2>' + esc(okText || "确定吗？") + "</h2>" +
+      "<p>" + esc(text) + "</p>" +
+      '<div class="row"><button class="btn btn-ghost" id="confirm-cancel">取消</button>' +
+      '<button class="btn btn-primary" id="confirm-ok">确定</button></div>');
+    modalState = { type: "confirm", key: "confirm" };
+    $("confirm-cancel").onclick = closeModal;
+    $("confirm-ok").onclick = function () { closeModal(); onOk(); };
+  }
+
   function copyText(text, okMsg) {
     if (!text) return;
-    var fallback = function () { window.prompt("复制下面这段：", text); };
+    var fallback = function () {
+      openModal('<div class="modal-kicker">复制</div><h2>手动复制</h2>' +
+        "<p>长按下面的内容全选复制：</p>" +
+        '<textarea class="copy-area" readonly>' + esc(text) + "</textarea>" +
+        '<div class="row"><button class="btn btn-ghost" id="copy-close">关闭</button></div>');
+      modalState = { type: "copy", key: "copy" };
+      $("copy-close").onclick = closeModal;
+    };
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function () { toast(okMsg); }, fallback);
     } else fallback();
@@ -3085,8 +3116,13 @@ window.CONTENT = {
     if (t.dataset && t.dataset.slotNew) {
       var sn = Number(t.dataset.slotNew);
       var info = E.slots()[sn - 1];
-      if (info && !info.empty &&
-          !window.confirm("槽 " + sn + " 里有一份未完成的契约（第 " + info.day + " 天），覆盖它？")) return;
+      if (info && !info.empty) {
+        confirmBox("槽 " + sn + " 里有一份未完成的契约（第 " + info.day + " 天），覆盖它？", "覆盖它", function () {
+          pendingSlot = sn;
+          openOriginPicker();
+        });
+        return;
+      }
       pendingSlot = sn;
       openOriginPicker();
       return;
@@ -3101,10 +3137,10 @@ window.CONTENT = {
     // 存档槽：删除
     if (t.dataset && t.dataset.slotDel) {
       var delN = Number(t.dataset.slotDel);
-      if (window.confirm("删除槽 " + delN + " 的契约？删了就找不回来了。")) {
+      confirmBox("删除槽 " + delN + " 的契约？删了就找不回来了。", "删除", function () {
         E.clearSave(delN);
         openSlotPicker(slotMode);
-      }
+      });
       return;
     }
     // 开局身份
@@ -3195,11 +3231,11 @@ window.CONTENT = {
       else if (m === "about") { openAbout(true); }
       else if (m === "title") { returnTo = "title"; syncTitle(); showScreen("title"); }
       else if (m === "restart") {
-        if (window.confirm("撕毁当前契约，从第一天重新开始？这个槽会被清空。")) {
+        confirmBox("撕毁当前契约，从第一天重新开始？这个槽会被清空。", "撕毁", function () {
           pendingSlot = E.currentSlot();
           E.clearSave(pendingSlot);
           openOriginPicker();
-        }
+        });
       }
       return;
     }
@@ -3232,13 +3268,13 @@ window.CONTENT = {
     $("btn-rules-start").onclick = function () { openSlotPicker("new"); };
     $("btn-about-back").onclick = goBack;
     $("btn-clear-save").onclick = function () {
-      if (window.confirm("清除全部三个存档槽？图鉴和成就保留，但进行中的局会丢。")) {
+      confirmBox("清除全部三个存档槽？图鉴和成就保留，但进行中的局会丢。", "全部清除", function () {
         E.clearSave();
         E.discard();
         syncTitle();
         showScreen("title");
         toast("存档已全部清除");
-      }
+      });
     };
     $("btn-gallery").onclick = openGallery;
     $("btn-gallery-back").onclick = function () { showScreen("title"); };
