@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 逆熵协议 v2.2.0 · 单文件网页版 · 双击就能玩，不需要联网 -->
+<!-- 逆熵协议 v2.3.0 · 单文件网页版 · 双击就能玩，不需要联网 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -219,7 +219,7 @@ body::before{
 .action:disabled{opacity:.34;cursor:not-allowed;}
 .action .an{font-size:13px;font-weight:700;color:var(--text-hi);display:flex;justify-content:space-between;gap:6px;}
 .action .an .cost{font-size:10px;color:var(--accent);font-weight:600;}
-.action .ad{font-size:10.5px;color:var(--dim);line-height:1.4;}
+.action .ad{font-size:10.5px;color:var(--dim);line-height:1.4;text-wrap:pretty;overflow-wrap:break-word;}
 .action .ar{font-size:10px;color:var(--bad);}
 .action.special{background:var(--accent-soft);border-color:#5a4a1c;}
 
@@ -494,6 +494,170 @@ body::before{
   100%{opacity:0;transform:translate(-50%,-46px) scale(1.02);}
 }
 
+
+/* =========================================================
+   v2.3.0 · 一屏作战界面
+   目标：手机一屏放下，不整页上下滑；日志是唯一滚动区
+   ========================================================= */
+
+/* 顶栏收紧 */
+.hud{margin-bottom:7px;gap:10px;}
+.hud-day-num{font-size:26px;}
+.hud .icon-btn{width:34px;height:34px;font-size:16px;border-radius:9px;}
+.ap-pips{gap:3px;}
+.ap-pip{width:8px;height:8px;}
+
+/* 四项主数值 */
+.vitals{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:5px;}
+.vital{
+  position:relative;overflow:hidden;
+  background:var(--panel-2);border:1px solid var(--line-soft);border-radius:9px;
+  padding:5px 8px 7px;
+}
+.vital .vk{display:block;font-size:9.5px;color:var(--dim);letter-spacing:1.5px;line-height:1.3;}
+.vital .vv{display:block;white-space:nowrap;font-size:clamp(12px,4.4vw,16px);font-weight:700;color:var(--text-hi);line-height:1.2;font-variant-numeric:tabular-nums;}
+.vital .vv small{font-size:9px;font-weight:400;color:var(--dim);margin-left:1px;}
+.vital.warn .vv{color:var(--bad);}
+.vital.ent .vv{color:var(--accent);}
+.vital.ent.hot .vv{color:var(--bad);}
+.epips{position:absolute;left:8px;right:8px;bottom:4px;display:flex;gap:2px;height:3px;}
+.epips i{flex:1 1 0;background:#26313f;border-radius:1px;}
+.epips i.on{background:var(--accent);}
+.vital.ent.hot .epips i.on{background:var(--bad);}
+
+/* 次要数值：一行小字 */
+.substats{
+  display:flex;align-items:center;gap:5px;overflow-x:auto;white-space:nowrap;
+  font-size:10px;color:#6d8093;margin:0 1px 6px;scrollbar-width:none;
+}
+.substats::-webkit-scrollbar{display:none;}
+.substats b{color:#9fb2c6;font-weight:600;font-variant-numeric:tabular-nums;}
+.substats b.warn{color:var(--bad);}
+.substats .sep{color:#33445a;}
+
+/* 今日状况条 */
+.ctx{display:flex;align-items:center;gap:5px;margin-bottom:6px;}
+.ctx-chips{display:flex;gap:5px;overflow-x:auto;flex:1 1 auto;min-width:0;scrollbar-width:none;}
+.ctx-chips::-webkit-scrollbar{display:none;}
+.ctx-chip{
+  appearance:none;font-family:inherit;cursor:pointer;flex:0 0 auto;white-space:nowrap;
+  font-size:10.5px;line-height:1;padding:5px 8px;border-radius:999px;
+  background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.2);color:#9fc0de;
+}
+.ctx-chip b{font-weight:600;color:#cfe1f2;margin-left:3px;}
+.ctx-chip.wb{background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.32);color:#a9c8e8;}
+.ctx-chip.sp{background:rgba(210,153,34,.08);border-color:rgba(210,153,34,.34);color:#e0bd76;}
+.ctx-chip.sp b{color:#f0d59a;}
+.ctx-chip.warn{background:rgba(229,83,75,.07);border-color:rgba(229,83,75,.3);color:#e79a95;}
+.membar{
+  appearance:none;font-family:inherit;cursor:pointer;flex:0 0 auto;width:auto;margin:0;
+  font-size:10.5px;line-height:1;padding:5px 8px;border-radius:999px;white-space:nowrap;
+  background:transparent;border:1px dashed var(--line);color:#7fa3c6;
+}
+.membar:hover{color:var(--text-hi);border-color:var(--cool);}
+
+/* 日结小结（一行） */
+.summary{
+  display:flex;align-items:center;gap:7px;overflow-x:auto;white-space:nowrap;
+  font-size:10.5px;color:#7289a1;margin:0 0 6px;padding:5px 9px;border-radius:8px;
+  background:rgba(70,177,123,.06);border:1px solid rgba(70,177,123,.22);scrollbar-width:none;
+}
+.summary::-webkit-scrollbar{display:none;}
+.summary .sm-t{font-size:10px;letter-spacing:1px;color:#9ab7cf;}
+.summary .sm-i.up{color:var(--good);}
+.summary .sm-i.down{color:var(--bad);}
+.summary .sm-c{color:var(--accent);}
+
+/* 今日委托：窄条 */
+.contract{margin:0 0 6px;padding:0;background:none;border:0;}
+.ct-head{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  font-size:10.5px;letter-spacing:2px;color:var(--dim);margin-bottom:5px;
+}
+.ct-note{font-size:10px;letter-spacing:0;color:#55657a;}
+.ct-opt{
+  display:flex;flex-direction:row;align-items:center;gap:8px;width:100%;text-align:left;
+  background:rgba(88,166,255,.05);border:1px solid rgba(88,166,255,.22);border-radius:9px;
+  padding:6px 9px;margin-bottom:5px;color:var(--text);font:inherit;cursor:pointer;
+}
+.ct-opt:last-child{margin-bottom:0;}
+.ct-opt:hover{background:rgba(88,166,255,.1);border-color:rgba(88,166,255,.42);}
+.ct-opt:active{transform:scale(.99);}
+.ct-type{
+  flex:0 0 auto;font-size:9.5px;letter-spacing:1px;color:#8fb4d8;
+  border:1px solid rgba(88,166,255,.32);border-radius:4px;padding:1px 4px;
+}
+.ct-main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.ct-t{font-size:12px;color:#d3e0ec;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ct-h{font-size:9.8px;color:#7d8fa3;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ct-cur{
+  margin:0;padding:6px 9px;border-radius:8px;font-size:11px;line-height:1.5;color:#a9c8e8;
+  background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.2);
+}
+
+/* 日志：唯一滚动区（提高优先级，盖掉 #screen-game > * 的 flex-shrink:0） */
+#screen-game .log{
+  flex:1 1 auto;min-height:52px;height:auto;margin-bottom:5px;
+  padding:8px 11px;font-size:11.8px;line-height:1.62;
+}
+
+/* 底部行动区 */
+.dock{flex:0 0 auto;padding-top:5px;border-top:1px solid #16212c;}
+.tabbar{display:flex;gap:4px;margin-bottom:6px;}
+.tab{
+  appearance:none;font-family:inherit;cursor:pointer;flex:1 1 0;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 0;
+  font-size:11.5px;letter-spacing:1px;color:#6f8296;
+  transition:background .12s,color .12s;
+}
+.tab b{font-size:9.5px;font-weight:600;color:#4d6076;background:#151f29;border-radius:999px;padding:0 5px;line-height:1.5;}
+.tab.on{background:#18222e;border-color:#26374a;color:var(--text-hi);}
+.tab.on b{color:var(--accent);background:rgba(232,179,57,.1);}
+
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.fragrow{grid-column:1 / -1;display:flex;flex-wrap:wrap;align-items:center;gap:5px;min-height:20px;}
+.fragrow .frag{font-size:10.5px;padding:3px 7px;}
+.fragrow .frag-empty{font-size:10px;}
+.action{min-height:0;padding:6px 8px;gap:0;border-radius:9px;}
+.action .an{font-size:12.5px;line-height:1.25;}
+.action .an .cost{font-size:9.5px;}
+.action .ad{
+  font-size:9.8px;line-height:1.3;color:#7d8fa3;margin-top:1px;
+  display:block;max-height:2.6em;overflow:hidden;text-wrap:balance;
+}
+.action .apv{font-size:9.8px;line-height:1.25;color:#8fbf9c;margin-top:1px;}
+.action .ar{font-size:9.8px;line-height:1.3;color:#c9706b;margin-top:1px;}
+.action.off{opacity:.42;}
+
+/* 结束这一天 */
+.endrow{display:flex;align-items:center;gap:10px;margin-top:7px;}
+.endrow .tax{flex:1 1 auto;text-align:right;font-size:10px;color:#55657a;font-variant-numeric:tabular-nums;}
+#btn-endday{flex:0 0 auto;min-height:42px;padding:9px 20px;font-size:14px;letter-spacing:1px;}
+.persist-hint{margin:5px 0 0;text-align:left;}
+
+/* 矮屏收紧 */
+@media (max-height:700px){
+  .hud-day-num{font-size:23px;}
+  .vital .vv{font-size:15px;}
+  .vital{padding:4px 7px 6px;}
+  .action .apv{display:none;}
+  .action .ad{font-size:9.5px;max-height:1.3em;}
+  .ct-h{font-size:9.5px;}
+  .log{font-size:11px;line-height:1.55;}
+  .tabbar{margin-bottom:5px;}
+}
+@media (max-height:600px){
+  .vitals{margin-bottom:3px;}
+  .substats{display:none;}
+  .ct-h{display:none;}
+  .summary{display:none;}
+}
+@media (min-width:720px){
+  .actions{grid-template-columns:1fr 1fr;}
+  .log{font-size:12.4px;}
+}
+
 </style>
 </head>
 <body>
@@ -597,37 +761,27 @@ body::before{
     <button class="icon-btn" id="btn-menu">≡</button>
   </header>
 
-  <div class="stats" id="stats"></div>
+  <div class="vitals" id="vitals"></div>
+  <div class="substats" id="substats"></div>
 
-  <div class="newsbar hidden" id="newsbar">
-    <span class="nb-tag">晚报</span>
-    <span class="nb-text" id="news-text"></span>
-    <span class="nb-mul" id="news-mul"></span>
+  <div class="ctx" id="ctx">
+    <div class="ctx-chips" id="ctxchips"></div>
+    <button class="membar hidden" id="membar"></button>
   </div>
 
-  <div class="worldbar hidden" id="worldbar"></div>
-
-  <div class="contract hidden" id="contract"></div>
-
   <div class="summary hidden" id="summary"></div>
-
-  <div class="frags" id="frags"></div>
-
-  <button class="membar hidden" id="membar"></button>
+  <div class="contract hidden" id="contract"></div>
 
   <div class="log" id="log"></div>
 
-  <div class="actions-wrap">
-    <div class="actions-h">
-      <span>今日行动</span>
-      <span class="muted" id="actions-hint"></span>
-    </div>
+  <div class="dock">
+    <div class="tabbar" id="tabbar"></div>
     <div class="actions" id="actions"></div>
-  </div>
-
-  <div class="footer-bar">
     <p class="persist-hint hidden" id="persist-hint">⚠ 当前页面不能存档，关掉就没了</p>
-    <button class="btn btn-primary wide" id="btn-endday">结束这一天 →</button>
+    <div class="endrow">
+      <span class="tax" id="actions-hint"></span>
+      <button class="btn btn-primary" id="btn-endday">结束这一天 →</button>
+    </div>
   </div>
 </section>
 
@@ -659,7 +813,7 @@ body::before{
    —— 想更新游戏：改这个文件，然后把 version 加一
    ========================================================= */
 window.CONTENT = {
-  version: "2.2.0",
+  version: "2.3.0",
   title: "逆熵协议",
   subtitle: "三十日交易所",
   tagline: "用记忆、健康与信用，向世界预支三十天。",
@@ -1498,6 +1652,13 @@ window.CONTENT = {
   ],
 
   changelog: [
+    { v: "2.3.0", date: "2026-11-19", notes: [
+      "界面重做：主界面一屏放下，不再整页上下滑动，只有日志区在内部滚动",
+      "状态栏减肥：只留现金、健康、记忆、熵四个大数字，其余六项收成一行小字",
+      "晚报、今日异变、特殊日、拍卖预警合并成一条「今日状况」，点开看全文",
+      "今日委托改成三张窄条，一眼看清条件、代价和奖励；不接也行",
+      "行动按生计／资本／越界／规则分成四页，每页最多四张卡，卡上直接写预期收益"
+    ]},
     { v: "2.2.0", date: "2026-11-19", notes: [
       "新增「每日异变」：每天开场抽一个世界状态，改写当天的工价、熵税、记忆价或行动点",
       "新增「特殊日」：第 7/14/21/28 天是结算周、审查日、静默日、清场日，各有独立规则",
@@ -2984,6 +3145,28 @@ window.CONTENT = {
   }
 
   /* ================= 游戏界面 ================= */
+  var activeTab = "life";
+  var TABS = [
+    { id: "life", name: "生计", acts: ["work", "rest", "study", "social"] },
+    { id: "cap", name: "资本", acts: ["invLow", "invHigh", "loan", "auction"] },
+    { id: "edge", name: "越界", acts: ["pawn", "black", "challenge", "anchor"] },
+    { id: "rule", name: "规则", acts: ["craft"] }
+  ];
+  var CTYPE_NAME = { work: "工作", spend: "支出", risk: "风险", restraint: "克制", social: "社交",
+                     rest: "休息", credit: "信用", any: "委托" };
+
+  /* 碎片技能（只在「规则」页出现） */
+  function fragSkills(S) {
+    var out = [];
+    if (S.fragments.indexOf("memoryCash") >= 0)
+      out.push({ id: "memoryCash", name: "记忆套现", desc: "10 记忆 → 1000 现金", used: !!S.usedToday.memoryCash });
+    if (S.fragments.indexOf("influenceCash") >= 0)
+      out.push({ id: "influenceCash", name: "影响力兑现", desc: "1 影响力 → 120 现金", used: !!S.usedToday.influenceCash });
+    if (S.fragments.indexOf("debtShift") >= 0)
+      out.push({ id: "debtShift", name: "债务转移", desc: "50% 债务 → 记忆损失", used: !!S.usedToday.debtShift });
+    return out;
+  }
+
   function renderGame(S) {
     $("hud-day").textContent = S.day;
     var ap = "";
@@ -2992,13 +3175,13 @@ window.CONTENT = {
     $("hud-ap").innerHTML = ap;
     $("hud-ap-num").textContent = S.ap;
 
-    renderStats(S);
-    renderNews(S);
-    renderWorld(S);
-    renderContract(S);
+    renderVitals(S);
+    renderSubstats(S);
+    renderCtx(S);
     renderSummary(S);
-    renderFrags(S);
+    renderContract(S);
     renderMemoryBar(S);
+    renderTabs(S);
     renderActions(S);
     renderLog(S);
 
@@ -3017,44 +3200,68 @@ window.CONTENT = {
     $("btn-endday").textContent = S.day >= C.config.days ? "结算这一天 →" : "结束这一天 →";
   }
 
-  function renderStats(S) {
-    var items = [
-      ["现金", Math.round(S.cash), ""],
-      ["健康", S.health, S.health < 30 ? "warn" : ""],
-      ["记忆", S.memory, S.memory < 30 ? "warn" : ""],
-      ["信用", S.credit, ""],
-      ["影响力", S.influence, ""],
-      ["逆熵点", S.ep, ""],
-      ["债务", Math.round(S.debt), S.debt > 0 ? "warn" : ""],
-      ["情报", S.intel, ""],
-      ["市场", "×" + S.market.toFixed(2), ""]
-    ];
-    var html = "";
-    items.forEach(function (it) {
-      html += '<div class="stat ' + it[2] + '"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + "</div></div>";
-    });
-    var ent = Math.min(S.entropy, C.config.entropyMax);
+  /* 四项主数值：现金 / 健康 / 记忆 / 熵 */
+  function renderVitals(S) {
+    var max = C.config.entropyMax;
+    var ent = Math.min(Math.max(S.entropy, 0), max);
     var pips = "";
-    for (var e = 0; e < C.config.entropyMax; e++) pips += '<span class="ent-pip' + (e < ent ? " on" : "") + '"></span>';
-    html += '<div class="ent-row"><span class="ent-l">熵</span><span class="ent-bar">' + pips +
-      '</span><span class="ent-n">' + ent + "/" + C.config.entropyMax + "</span></div>";
-    $("stats").innerHTML = html;
+    for (var e = 0; e < max; e++) pips += '<i class="' + (e < ent ? "on" : "") + '"></i>';
+    var hot = ent >= 7 ? " hot" : "";
+    $("vitals").innerHTML =
+      '<div class="vital"><span class="vk">现金</span><span class="vv">' + Math.round(S.cash) + "</span></div>" +
+      '<div class="vital' + (S.health < 30 ? " warn" : "") + '"><span class="vk">健康</span><span class="vv">' + S.health + "</span></div>" +
+      '<div class="vital' + (S.memory < 30 ? " warn" : "") + '"><span class="vk">记忆</span><span class="vv">' + S.memory + "</span></div>" +
+      '<div class="vital ent' + hot + '"><span class="vk">熵</span><span class="vv">' + ent + "<small>/" + max + "</small></span>" +
+      '<span class="epips">' + pips + "</span></div>";
   }
 
-  /* 今日异变 / 特殊日 / 预告 */
-  function renderWorld(S) {
-    var el = $("worldbar");
-    if (!el) return;
+  /* 其余数值：一行小字，横向可滑 */
+  function renderSubstats(S) {
+    var cells = [
+      ["信用", S.credit, S.credit < 25],
+      ["影响", S.influence, false],
+      ["情报", S.intel, false],
+      ["逆熵", S.ep, false],
+      ["债务", Math.round(S.debt), S.debt > 0],
+      ["市场", "×" + S.market.toFixed(2), S.market < 0.95]
+    ];
+    var h = "";
+    cells.forEach(function (c, i) {
+      if (i) h += '<span class="sep">·</span>';
+      h += "<span>" + c[0] + ' <b class="' + (c[2] ? "warn" : "") + '">' + c[1] + "</b></span>";
+    });
+    $("substats").innerHTML = h;
+  }
+
+  /* 今日状况：晚报 / 异变 / 特殊日 / 预警 —— 点开看全文 */
+  function renderCtx(S) {
+    var box = $("ctxchips");
+    if (!box) return;
     var w = E.worldInfo();
-    var parts = [];
-    if (w && w.name) parts.push('<span class="wb-tag">异变</span><span class="wb-name">' + esc(w.name) +
-      '</span><span class="wb-desc">' + esc(w.desc) + "</span>");
-    if (w && w.special) parts.push('<span class="wb-tag sp">特殊日</span><span class="wb-name">' + esc(w.special) +
-      '</span><span class="wb-desc">' + esc(w.specialDesc) + "</span>");
+    var out = "";
+    if (S.news) {
+      var mul = (S.newsMul && S.newsMul !== 1) ? "×" + S.newsMul.toFixed(2) : "×1.00";
+      out += '<button class="ctx-chip" data-ctx="news">晚报<b>工价 ' + mul + "</b></button>";
+    }
+    if (w && w.name) out += '<button class="ctx-chip wb" data-ctx="world">异变<b>' + esc(w.name) + "</b></button>";
+    if (w && w.special) out += '<button class="ctx-chip sp" data-ctx="special">特殊日<b>' + esc(w.special) + "</b></button>";
     var warn = E.dayWarning();
-    if (warn) parts.push('<span class="wb-warn">◎ ' + esc(warn) + "</span>");
-    el.innerHTML = parts.join("");
-    el.classList.toggle("hidden", !parts.length);
+    if (warn) out += '<button class="ctx-chip warn" data-ctx="warn">' + esc(warn) + "</button>";
+    box.innerHTML = out;
+  }
+
+  function openCtxInfo(kind) {
+    var S = E.state();
+    if (!S) return;
+    var w = E.worldInfo();
+    var title = "", body = "";
+    if (kind === "news") { title = "今日晚报 · 工价" + ((S.newsMul && S.newsMul !== 1) ? "×" + S.newsMul.toFixed(2) : "×1.00"); body = S.news || "今天没有值得写下来的消息。"; }
+    else if (kind === "world") { title = "今日异变 · " + (w.name || "无"); body = w.desc || "今天交易所一切如常。"; }
+    else if (kind === "special") { title = "特殊日 · " + (w.special || "无"); body = w.specialDesc || ""; }
+    else if (kind === "warn") { title = "提前预警"; body = E.dayWarning() || ""; }
+    openModal('<div class="modal-kicker">' + esc(title) + '</div><p>' + esc(body) + "</p>" +
+      '<div class="row"><button class="btn wide" data-close="">知道了</button></div>');
+    modalState = { type: "info", key: kind };
   }
 
   /* 日结小结 */
@@ -3066,96 +3273,106 @@ window.CONTENT = {
     var d = function (v) { return (v > 0 ? "+" : "") + v; };
     var k = function (v) { return v > 0 ? "up" : (v < 0 ? "down" : ""); };
     var cs = s.contract === "done" ? "委托 ✓" : (s.contract === "failed" ? "委托 ✗" : "");
-    el.innerHTML = '<span class="sm-t">第 ' + s.day + " 天小结</span>" +
-      '<span class="sm-i ' + k(s.cash) + '">现金 ' + d(s.cash) + "</span>" +
-      '<span class="sm-i ' + k(s.health) + '">健康 ' + d(s.health) + "</span>" +
-      '<span class="sm-i ' + k(s.memory) + '">记忆 ' + d(s.memory) + "</span>" +
-      '<span class="sm-i ' + k(s.entropy) + '">熵 ' + d(s.entropy) + "</span>" +
+    var parts = [];
+    [["现金", s.cash], ["健康", s.health], ["记忆", s.memory], ["熵", s.entropy]].forEach(function (it) {
+      if (it[1]) parts.push('<span class="sm-i ' + k(it[1]) + '">' + it[0] + " " + d(it[1]) + "</span>");
+    });
+    el.innerHTML = '<span class="sm-t">第 ' + s.day + " 天</span>" +
+      (parts.length ? parts.join("") : '<span class="sm-i">今天没有数值变化</span>') +
       (cs ? '<span class="sm-c">' + cs + "</span>" : "");
     el.classList.remove("hidden");
   }
 
-  function renderNews(S) {
-    var nb = $("newsbar");
-    if (!nb) return;
-    var on = !!(S.news);
-    nb.classList.toggle("hidden", !on);
-    if (!on) { nb.textContent = ""; return; }
-    $("news-text").textContent = S.news;
-    $("news-mul").textContent = (S.newsMul && S.newsMul !== 1) ? "工价 ×" + S.newsMul.toFixed(2) : "工价 ×1.00";
-  }
-
-  var CTYPE_NAME = { work: "工作", spend: "支出", risk: "风险", restraint: "克制", social: "社交",
-                     rest: "休息", credit: "信用", any: "委托" };
+  /* 今日委托：三张窄条，不接也行 */
   function renderContract(S) {
     var el = $("contract");
     if (!el) return;
     var opts = E.contractOptions();
     if (opts && opts.length) {
       el.classList.remove("hidden");
-      var oh = '<div class="ct-head">今日委托 · 挑一张</div>';
+      var oh = '<div class="ct-head"><span>今日委托</span><span class="ct-note">不接也行</span></div>';
       opts.forEach(function (o) {
-        oh += '<button class="ct-opt" data-contract="' + o.id + '">' +
+        oh += '<button class="ct-opt" data-contract="' + o.id + '" title="' + esc(o.text + "　" + o.hint + " → +" + o.rewardText) + '">' +
           '<span class="ct-type">' + esc(CTYPE_NAME[o.type] || "委托") + "</span>" +
-          '<span class="ct-t">' + esc(o.text) + "</span>" +
-          '<span class="ct-h">' + esc(o.hint) + "　→ +" + esc(o.rewardText) + "</span></button>";
+          '<span class="ct-main"><span class="ct-t">' + esc(o.text) + "</span>" +
+          '<span class="ct-h">' + esc(o.hint) + " → +" + esc(o.rewardText) + "</span></span></button>";
       });
       el.innerHTML = oh;
       return;
     }
     var c = S.contract;
-    if (!c || c.done || c.failed) { el.classList.add("hidden"); el.textContent = ""; return; }
+    if (!c || c.done || c.failed) { el.classList.add("hidden"); el.innerHTML = ""; return; }
     el.classList.remove("hidden");
     var st = E.contractStatus();
     var tail = st && st.done ? "　✓ 已完成，结束这一天时发放" : "";
     var reward = st && st.rewardText ? "　→ +" + st.rewardText : "";
-    el.textContent = "【今日委托】" + c.text + "（" + c.hint + "）" + reward + tail;
+    el.innerHTML = '<p class="ct-cur">【今日委托】' + esc(c.text) + "（" + esc(c.hint) + "）" + esc(reward) + esc(tail) + "</p>";
   }
 
   function renderMemoryBar(S) {
     var mb = $("membar");
     if (!mb) return;
     var n = (S.memories || []).length;
-    mb.textContent = n ? "你还记得 " + n + " 件事 ▸" : "";
+    mb.textContent = n ? "记得 " + n + " 件事 ▸" : "";
     mb.classList.toggle("hidden", n === 0);
   }
 
-  function renderFrags(S) {
-    if (!S.fragments.length) {
-      $("frags").innerHTML = '<span class="frag-empty">尚无规则碎片 · 第 3 枚起每天会啃食记忆</span>';
-      return;
-    }
-    $("frags").innerHTML = S.fragments.map(function (id) {
-      var f = C.fragments[id];
-      if (!f) return "";
-      return '<span class="frag' + (id === "badge" ? " badge" : "") + '" data-frag="' + id + '">' + esc(f.name) + "</span>";
-    }).join("");
+  /* 行动分页 */
+  function renderTabs(S) {
+    var acts = E.actions();
+    var skills = fragSkills(S);
+    var html = "";
+    TABS.forEach(function (t) {
+      var n = 0;
+      acts.forEach(function (a) { if (t.acts.indexOf(a.id) >= 0 && !a.disabled) n++; });
+      if (t.id === "rule") skills.forEach(function (sk) { if (!sk.used) n++; });
+      html += '<button class="tab' + (activeTab === t.id ? " on" : "") + '" data-tab="' + t.id + '">' +
+        esc(t.name) + (n ? "<b>" + n + "</b>" : "") + "</button>";
+    });
+    $("tabbar").innerHTML = html;
+  }
+
+  function actionCard(a) {
+    var cost = '<span class="cost">' + (a.cost ? a.cost + " AP" : "0 AP") + "</span>";
+    var soft = a.reason === "行动点不足" || a.reason === "先读完这段" || a.reason === "先做一个选择";
+    var body = a.disabled
+      ? (soft ? '<span class="ad">' + esc(a.desc) + "</span>"
+              : '<span class="ar">' + esc(a.reason || "现在不能用") + "</span>")
+      : '<span class="ad">' + esc(a.desc) + "</span>" +
+        (a.preview && a.desc.indexOf(a.preview.replace(/^≈\s*/, "")) < 0
+          ? '<span class="apv">' + esc(a.preview) + "</span>" : "");
+    return '<button class="action' + (a.disabled ? " off" : "") + '" data-act="' + a.id + '"' +
+      (a.disabled ? " disabled" : "") + '><span class="an">' + esc(a.name) + cost + "</span>" + body + "</button>";
   }
 
   function renderActions(S) {
-    var list = E.actions();
+    var acts = E.actions();
+    var tab = TABS[0];
+    TABS.forEach(function (t) { if (t.id === activeTab) tab = t; });
     var html = "";
-    list.forEach(function (a) {
-      var cost = a.cost ? '<span class="cost">' + a.cost + " AP</span>" : '<span class="cost">0 AP</span>';
-      html += '<button class="action" data-act="' + a.id + '"' + (a.disabled ? " disabled" : "") + ">" +
-        '<span class="an">' + esc(a.name) + cost + "</span>" +
-        '<span class="ad">' + esc(a.desc) + "</span>" +
-        (a.preview && !a.disabled ? '<span class="apv">' + esc(a.preview) + "</span>" : "") +
-        (a.disabled && a.reason ? '<span class="ar">' + esc(a.reason) + "</span>" : "") +
-        "</button>";
+    if (tab.id === "rule") {
+      html += '<div class="fragrow">';
+      if (!S.fragments.length) {
+        html += '<span class="frag-empty">还没有规则碎片 · 集满 3 枚起每天会啃食记忆</span>';
+      } else {
+        S.fragments.forEach(function (id) {
+          var f = C.fragments[id];
+          if (!f) return;
+          html += '<span class="frag' + (id === "badge" ? " badge" : "") + '" data-frag="' + id + '">' + esc(f.name) + "</span>";
+        });
+      }
+      html += "</div>";
+    }
+    acts.forEach(function (a) {
+      if (tab.acts.indexOf(a.id) < 0) return;
+      html += actionCard(a);
     });
-    // 碎片技能
-    if (S.fragments.indexOf("memoryCash") >= 0) {
-      html += '<button class="action special" data-fragact="memoryCash"' + (S.usedToday.memoryCash ? " disabled" : "") + '>' +
-        '<span class="an">记忆套现<span class="cost">0 AP</span></span><span class="ad">10 记忆 → 1000 现金（每天一次）</span></button>';
-    }
-    if (S.fragments.indexOf("influenceCash") >= 0) {
-      html += '<button class="action special" data-fragact="influenceCash"' + (S.usedToday.influenceCash ? " disabled" : "") + '>' +
-        '<span class="an">影响力兑现<span class="cost">0 AP</span></span><span class="ad">1 影响力 → 120 现金（每天一次）</span></button>';
-    }
-    if (S.fragments.indexOf("debtShift") >= 0) {
-      html += '<button class="action special" data-fragact="debtShift"' + (S.usedToday.debtShift ? " disabled" : "") + '>' +
-        '<span class="an">债务转移<span class="cost">0 AP</span></span><span class="ad">50% 债务 → 记忆损失（每天一次）</span></button>';
+    if (tab.id === "rule") {
+      fragSkills(S).forEach(function (sk) {
+        html += '<button class="action special' + (sk.used ? " off" : "") + '" data-fragact="' + sk.id + '"' +
+          (sk.used ? " disabled" : "") + '><span class="an">' + esc(sk.name) +
+          '<span class="cost">0 AP</span></span><span class="ad">' + esc(sk.desc) + "</span></button>";
+      });
     }
     $("actions").innerHTML = html;
   }
@@ -3524,6 +3741,17 @@ window.CONTENT = {
     var t = ev.target.closest ? ev.target.closest("button, .frag") : null;
     if (!t) return;
 
+    // 行动分页
+    if (t.dataset && t.dataset.tab) {
+      activeTab = t.dataset.tab;
+      var St = E.state();
+      if (St) { renderTabs(St); renderActions(St); }
+      return;
+    }
+    // 今日状况详情
+    if (t.dataset && t.dataset.ctx) { openCtxInfo(t.dataset.ctx); return; }
+    // 通用关闭
+    if (t.dataset && t.dataset.close !== undefined) { closeModal(); return; }
     // 典当：选中某一段记忆
     if (t.dataset && t.dataset.pawnMem) {
       closeModal();
