@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- 逆熵协议 v2.1.1 · 单文件网页版 · 双击就能玩，不需要联网 -->
+<!-- 逆熵协议 v2.2.0 · 单文件网页版 · 双击就能玩，不需要联网 -->
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -431,6 +431,69 @@ body::before{
   color:var(--text);font-family:inherit;font-size:12.5px;line-height:1.7;resize:vertical;
 }
 
+/* ---------- v2.2.0 新增 ---------- */
+/* 熵值条 */
+.ent-row{grid-column:1 / -1;display:flex;align-items:center;gap:8px;margin-top:3px;padding:1px 2px 0;}
+.ent-l{font-size:10px;color:var(--dim);letter-spacing:1px;}
+.ent-bar{display:flex;gap:3px;flex:1 1 auto;}
+.ent-pip{height:6px;flex:1 1 0;border-radius:3px;background:#1c2733;transition:background .2s;}
+.ent-pip.on{background:linear-gradient(90deg,#8a5a1a,#e8b339);box-shadow:0 0 6px rgba(232,179,57,.35);}
+.ent-n{font-size:10px;color:#b99b52;font-variant-numeric:tabular-nums;}
+
+/* 今日异变 / 特殊日 / 预告 */
+.worldbar{
+  display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:4px 0 6px;padding:5px 9px;
+  border-radius:8px;background:rgba(88,166,255,.06);border:1px solid rgba(88,166,255,.18);
+  font-size:11.5px;line-height:1.5;
+}
+.wb-tag{font-size:9.5px;letter-spacing:1px;color:var(--cool);border:1px solid rgba(88,166,255,.4);border-radius:4px;padding:0 4px;}
+.wb-tag.sp{color:var(--accent);border-color:rgba(232,179,57,.5);}
+.wb-name{color:var(--text-hi);font-weight:600;}
+.wb-desc{color:var(--dim);}
+.wb-warn{flex:1 0 100%;color:var(--event);font-size:11px;margin-top:1px;}
+
+/* 日结小结 */
+.summary{
+  display:flex;flex-wrap:wrap;gap:3px 11px;align-items:center;margin:0 0 8px;padding:6px 9px;
+  border-radius:8px;background:rgba(70,177,123,.07);border:1px solid rgba(70,177,123,.22);
+  font-size:11.5px;line-height:1.5;
+}
+.sm-t{font-size:10px;letter-spacing:1px;color:var(--good);}
+.sm-i{color:var(--dim);font-variant-numeric:tabular-nums;}
+.sm-i.up{color:var(--good);}
+.sm-i.down{color:var(--bad);}
+.sm-c{color:var(--accent);}
+
+/* 委托三选一 */
+.ct-head{font-size:10px;letter-spacing:1px;color:var(--cool);margin-bottom:5px;}
+.ct-opt{
+  display:flex;flex-direction:column;gap:2px;width:100%;text-align:left;
+  background:var(--panel-2);border:1px solid var(--line-soft);border-radius:8px;
+  padding:6px 8px;margin-bottom:5px;color:inherit;font:inherit;cursor:pointer;
+}
+.ct-opt:last-child{margin-bottom:0;}
+.ct-opt:active{transform:scale(.99);}
+.ct-type{align-self:flex-start;font-size:9.5px;letter-spacing:1px;color:var(--accent);border:1px solid rgba(232,179,57,.35);border-radius:4px;padding:0 4px;}
+.ct-t{font-size:12px;color:var(--text-hi);line-height:1.45;}
+.ct-h{font-size:10.5px;color:var(--dim);}
+
+/* 收益预览 */
+.action .apv{font-size:10px;color:var(--good);font-weight:600;}
+
+/* 飘字 */
+.float-num{
+  position:fixed;left:50%;top:36%;z-index:99;pointer-events:none;
+  font-size:19px;font-weight:800;letter-spacing:.5px;
+  animation:floatUp 1.1s ease-out forwards;
+}
+.float-num.up{color:var(--good);text-shadow:0 0 12px rgba(70,177,123,.5);}
+.float-num.down{color:var(--bad);text-shadow:0 0 12px rgba(229,83,75,.5);}
+@keyframes floatUp{
+  0%{opacity:0;transform:translate(-50%,10px) scale(.9);}
+  20%{opacity:1;transform:translate(-50%,0) scale(1);}
+  100%{opacity:0;transform:translate(-50%,-46px) scale(1.02);}
+}
+
 </style>
 </head>
 <body>
@@ -542,7 +605,11 @@ body::before{
     <span class="nb-mul" id="news-mul"></span>
   </div>
 
+  <div class="worldbar hidden" id="worldbar"></div>
+
   <div class="contract hidden" id="contract"></div>
+
+  <div class="summary hidden" id="summary"></div>
 
   <div class="frags" id="frags"></div>
 
@@ -592,11 +659,11 @@ body::before{
    —— 想更新游戏：改这个文件，然后把 version 加一
    ========================================================= */
 window.CONTENT = {
-  version: "2.1.1",
+  version: "2.2.0",
   title: "逆熵协议",
   subtitle: "三十日交易所",
   tagline: "用记忆、健康与信用，向世界预支三十天。",
-  release: "2026-11-18",
+  release: "2026-11-19",
 
   /* ---------------- 数值配置（改这里就能调平衡） ---------------- */
   config: {
@@ -632,6 +699,38 @@ window.CONTENT = {
     badgeCount: 7,
 
     valuation: { influence: 100, ep: 300, memory: 80, intel: 50 }
+  },
+
+  /* ---------------- 每日异变（每天开场抽取一个，影响当日规则） ---------------- */
+  worldStates: [
+    { id: "rush", name: "抢工期", desc: "交易所临时加派，工价 +40%", mod: { workMul: 1.4 } },
+    { id: "slump", name: "滞销日", desc: "工价 -15%，但记忆收购价 +50%", mod: { workMul: 0.85, pawnMul: 1.5 } },
+    { id: "auditOff", name: "停账日", desc: "今天不查账：熵税 -40%", mod: { taxMul: 0.6 } },
+    { id: "powercut", name: "停电", desc: "备用电源只够你多做一个动作：AP +1", mod: { apBonus: 1 } },
+    { id: "intelHot", name: "情报热", desc: "学习情报半价（250 现金）", mod: { studyCost: 250 } },
+    { id: "purge", name: "肃清", desc: "清点库存：今天免熵税，但工价 -20%", mod: { taxMul: 0, workMul: 0.8 } },
+    { id: "nostalgia", name: "怀旧潮", desc: "全城都在回忆：记忆 +5", mod: { memoryAdd: 5 } },
+    { id: "festival", name: "交易所庆典", desc: "今日委托奖励 ×1.5", mod: { contractMul: 1.5 } },
+    { id: "collect", name: "催收日", desc: "催收车停在门口：熵税 +25%", mod: { taxMul: 1.25 } },
+    { id: "jobfair", name: "招聘会", desc: "工价 +20%，但休息少恢复 2 点", mod: { workMul: 1.2, restAdd: -2 } }
+  ],
+
+  /* ---------------- 开局天赋（每次开局三选一，永久生效） ---------------- */
+  talents: [
+    { id: "t_vet", name: "老手", desc: "打工现金 +15%", tag: "收入", mod: { workMul: 1.15 } },
+    { id: "t_gut", name: "铁胃", desc: "休息多恢复 8 点健康", tag: "恢复", mod: { restAdd: 8 } },
+    { id: "t_talk", name: "健谈", desc: "社交多拿 4 点影响力", tag: "影响力", mod: { socialAdd: 4 } },
+    { id: "t_ledger", name: "精算", desc: "熵税 -20%", tag: "熵税", mod: { taxMul: 0.8 } },
+    { id: "t_cold", name: "冷心", desc: "典当记忆多拿 300 现金", tag: "记忆", mod: { pawnAdd: 300 } },
+    { id: "t_luck", name: "赌徒", desc: "高风险投资倍率 +0.4", tag: "投资", mod: { highAdd: 0.4 } }
+  ],
+
+  /* ---------------- 特殊日：每周最后一天 ---------------- */
+  specialDays: {
+    7: { name: "结算周", desc: "交易所半价结账：熵税 -50%", mod: { taxMul: 0.5 } },
+    14: { name: "审查日", desc: "审查组进驻：工价 -30%，委托奖励 ×2", mod: { workMul: 0.7, contractMul: 2 } },
+    21: { name: "静默日", desc: "全城禁声：AP +1，记忆 -5", mod: { apBonus: 1, memoryAdd: -5 } },
+    28: { name: "清场日", desc: "清场前最后收账：熵税 +50%，记忆收购价 +80%", mod: { taxMul: 1.5, pawnMul: 1.8 } }
   },
 
   /* ---------------- 规则碎片 ---------------- */
@@ -1314,8 +1413,20 @@ window.CONTENT = {
       check: function (t) { return t.challenge >= 1; } },
     { id: "c_study", text: "今天只做一件事：学习。", hint: "只做 1 个行动且是学习", reward: { cash: 700 }, rewardText: "700 现金",
       check: function (t) { return t.study >= 1 && t.actions === 1; } },
-    { id: "c_poor", text: "今天结束前，把现金花到五百以下。", hint: "结束时现金 < 500", reward: { cash: 900 }, rewardText: "900 现金",
-      check: function (t, S) { return S.cash < 500; } }
+    { id: "c_poor", text: "今天结束前，把现金花到五百以下。", hint: "结束时现金 < 500", type: "spend", reward: { cash: 900 }, rewardText: "900 现金",
+      check: function (t, S) { return S.cash < 500; } },
+    { id: "c_labor2", text: "两份工，一天干完。", hint: "打工 2 次", type: "work", reward: { cash: 800 }, rewardText: "800 现金",
+      check: function (t) { return t.work >= 2; } },
+    { id: "c_rest2", text: "今天至少睡两次。", hint: "休息 2 次", type: "rest", reward: { memory: 8 }, rewardText: "8 记忆",
+      check: function (t) { return t.rest >= 2; } },
+    { id: "c_inv", text: "把这一千块投出去，别攥着。", hint: "今日投资金额 ≥ 1000", type: "risk", reward: { intel: 2 }, rewardText: "2 情报",
+      check: function (t) { return (t.invest || 0) >= 1000; } },
+    { id: "c_noloan", text: "今天一分钱都别借。", hint: "至少 1 个行动且不借贷", type: "credit", reward: { cash: 500 }, rewardText: "500 现金",
+      check: function (t) { return t.actions >= 1 && !t.loan; } },
+    { id: "c_ent3", text: "别让熵爬到 3 以上。", hint: "结束时熵值 ≤ 3", type: "restraint", reward: { ep: 1 }, rewardText: "1 逆熵点",
+      check: function (t, S) { return S.entropy <= 3; } },
+    { id: "c_social2", text: "今天至少聊两次。", hint: "社交 2 次", type: "social", reward: { influence: 8 }, rewardText: "8 影响力",
+      check: function (t) { return t.social >= 2; } }
   ],
 
   /* ---------- 档案室：世界观条目 ---------- */
@@ -1387,6 +1498,15 @@ window.CONTENT = {
   ],
 
   changelog: [
+    { v: "2.2.0", date: "2026-11-19", notes: [
+      "新增「每日异变」：每天开场抽一个世界状态，改写当天的工价、熵税、记忆价或行动点",
+      "新增「特殊日」：第 7/14/21/28 天是结算周、审查日、静默日、清场日，各有独立规则",
+      "新增「开局天赋」：每次开局三选一，永久生效，同一套打法不再永远最优",
+      "委托改成三选一，并分成工作/支出/风险/克制/社交等类型；没完成的委托现在要付代价（信用 -5、现金 -200）",
+      "街角事件、晚报、委托加入去重：同一局里不会反复抽到同一条",
+      "新增第 19 天「名字拍卖」预警：现金不足 5000 时提前提示还差多少",
+      "熵值改成可视化条，日结后显示当日收支小结，行动按钮上直接标出预期收益"
+    ]},
     { v: "2.1.1", date: "2026-11-18", notes: [
       "修复：安卓包点「清除存档 / 删除槽位 / 撕毁契约」没有任何反应（WebView 吞掉了 confirm 弹窗）",
       "所有确认改成游戏内弹层，网页版和安卓版行为一致",
@@ -1621,7 +1741,7 @@ window.CONTENT = {
   /* ---------- 数值 ---------- */
   function taxFor(day) {
     var base = CFG.taxBase + CFG.taxGrowth * day + Math.max(0, S.cash) * CFG.taxCashRate;
-    return Math.round(base * ((S && S.taxMul) || 1));
+    return Math.round(base * ((S && S.taxMul) || 1) * M().taxMul);
   }
   function netWorth() {
     var v = CFG.valuation;
@@ -1633,6 +1753,7 @@ window.CONTENT = {
     if (S.health < 50) ap -= 1;
     if (S.health < 25) ap -= 1;
     if (has("timeFold")) ap += 1;
+    ap += M().apBonus;
     return Math.max(1, ap);
   }
   function fragmentDrain() {
@@ -1654,6 +1775,58 @@ window.CONTENT = {
     if (S.today) S.today.spend = (S.today.spend || 0) + Math.max(0, before - S.cash);
   }
   function addHealth(n) { S.health = clamp(S.health + n, 0, CFG.maxHealth); }
+
+  /* ---------- 今日修正：异变 / 特殊日 / 天赋叠加 ---------- */
+  var MOD_DEF = { workMul: 1, taxMul: 1, pawnMul: 1, contractMul: 1, highAdd: 0, pawnAdd: 0,
+                  apBonus: 0, restAdd: 0, socialAdd: 0, studyCost: 500, entropyAdd: 0, memoryAdd: 0 };
+  function M() { return (S && S.mod) || MOD_DEF; }
+  function talentById(id) {
+    var l = C.talents || [];
+    for (var i = 0; i < l.length; i++) if (l[i].id === id) return l[i];
+    return null;
+  }
+  function addMod(m) {
+    if (!m || !S) return;
+    if (!S.mod) { S.mod = {}; for (var kk in MOD_DEF) S.mod[kk] = MOD_DEF[kk]; }
+    var d = S.mod;
+    if (m.workMul) d.workMul *= m.workMul;
+    if (m.taxMul) d.taxMul *= m.taxMul;
+    if (m.pawnMul) d.pawnMul *= m.pawnMul;
+    if (m.pawnAdd) d.pawnAdd += m.pawnAdd;
+    if (m.contractMul) d.contractMul *= m.contractMul;
+    if (m.highAdd) d.highAdd += m.highAdd;
+    if (m.apBonus) d.apBonus += m.apBonus;
+    if (m.restAdd) d.restAdd += m.restAdd;
+    if (m.socialAdd) d.socialAdd += m.socialAdd;
+    if (m.studyCost) d.studyCost = Math.min(d.studyCost, m.studyCost);
+    if (m.entropyAdd) d.entropyAdd += m.entropyAdd;
+    if (m.memoryAdd) d.memoryAdd += m.memoryAdd;
+  }
+  function computeMod(n) {
+    S.mod = {};
+    for (var k in MOD_DEF) S.mod[k] = MOD_DEF[k];
+    S.worldId = ""; S.worldName = ""; S.worldDesc = "";
+    S.specialId = 0; S.specialName = ""; S.specialDesc = "";
+    var wl = C.worldStates || [];
+    if (wl.length) {
+      var w = wl[Math.floor(Math.random() * wl.length)];
+      S.worldId = w.id; S.worldName = w.name; S.worldDesc = w.desc;
+      addMod(w.mod);
+    }
+    var sp = (C.specialDays || {})[n];
+    if (sp) { S.specialId = n; S.specialName = sp.name; S.specialDesc = sp.desc; addMod(sp.mod); }
+    var tl = S.talents || [];
+    for (var i = 0; i < tl.length; i++) { var t = talentById(tl[i]); if (t) addMod(t.mod); }
+  }
+  function pickFresh(key, list, idOf) {
+    if (!S[key]) S[key] = [];
+    if (!list || !list.length) return null;
+    var avail = list.filter(function (x) { return S[key].indexOf(idOf(x)) < 0; });
+    if (!avail.length) { S[key] = []; avail = list.slice(); }
+    var pick = avail[Math.floor(Math.random() * avail.length)];
+    S[key].push(idOf(pick));
+    return pick;
+  }
 
   /* ---------- 记忆库 ---------- */
   function memText(id) {
@@ -1755,7 +1928,7 @@ window.CONTENT = {
       desc: "+" + CFG.workPay + " 现金 · -" + CFG.workHealth + " 健康 · +2 信用",
       can: function () { return S.health > CFG.workHealth ? null : "健康不够，你站不住了"; },
       run: function () {
-        var pay = Math.round(CFG.workPay * (S.newsMul || 1));
+        var pay = Math.round(CFG.workPay * (S.newsMul || 1) * M().workMul);
         var v = gain(pay);
         addHealth(-CFG.workHealth);
         S.credit = clamp(S.credit + 2, 0, 100);
@@ -1767,7 +1940,7 @@ window.CONTENT = {
       desc: "+" + CFG.restHealth + " 健康",
       can: function () { return S.health >= CFG.maxHealth ? "健康已经满了" : null; },
       run: function () {
-        var r = Math.round(CFG.restHealth * (S.restMul || 1));
+        var r = Math.max(1, Math.round(CFG.restHealth * (S.restMul || 1)) + M().restAdd);
         addHealth(r);
         log("休息：+" + r + " 健康", "good");
       }
@@ -1779,7 +1952,7 @@ window.CONTENT = {
       run: function () {
         spend(300);
         var r = d6();
-        var inf = 5 + (r >= 4 ? 5 : 0);
+        var inf = 5 + (r >= 4 ? 5 : 0) + M().socialAdd;
         S.influence += inf;
         log("社交：-300 现金，+" + inf + " 影响力（掷出 " + r + "）", "good");
       }
@@ -1787,8 +1960,12 @@ window.CONTENT = {
     {
       id: "study", name: "学习情报", cost: 1, tag: "情报",
       desc: "-500 现金 · +1 情报",
-      can: function () { return S.cash >= 500 ? null : "现金不足 500"; },
-      run: function () { spend(500); S.intel += 1; log("学习：-500 现金，+1 情报（共 " + S.intel + "）", "info"); }
+      can: function () { return S.cash >= M().studyCost ? null : "现金不足 " + M().studyCost; },
+      run: function () {
+        var cost = M().studyCost;
+        spend(cost); S.intel += 1;
+        log("学习：-" + cost + " 现金，+1 情报（共 " + S.intel + "）", "info");
+      }
     },
     {
       id: "craft", name: "合成碎片", cost: 1, tag: "规则",
@@ -1811,6 +1988,7 @@ window.CONTENT = {
         if (amt > S.cash) amt = Math.floor(S.cash);
         spend(amt);
         S.pending.push({ amount: amt });
+        if (S.today) S.today.invest = (S.today.invest || 0) + amt;
         log("低风险投资 " + amt + " 现金，次日结算", "info");
       }
     },
@@ -1823,9 +2001,10 @@ window.CONTENT = {
         if (!(amt >= 100)) { log("投资金额无效", "bad"); return "abort"; }
         amt = Math.min(amt, Math.floor(S.cash), CFG.highCap);
         spend(amt);
+        if (S.today) S.today.invest = (S.today.invest || 0) + amt;
         var r = d6(), ret = 0;
-        if (r >= 6) ret = Math.round(amt * 3.2);
-        else if (r >= 4) ret = Math.round(amt * 1.8);
+        if (r >= 6) ret = Math.round(amt * (3.2 + M().highAdd));
+        else if (r >= 4) ret = Math.round(amt * (1.8 + M().highAdd));
         S.cash += ret;
         log("高风险投资掷出 " + r + "，收回 " + ret + " 现金", ret > amt ? "good" : "bad");
         if (ret === 0) S.stats.investLose++; else S.stats.investWin++;
@@ -1861,7 +2040,7 @@ window.CONTENT = {
         if (!S.memSold) S.memSold = [];
         if (S.memSold.indexOf(mid) < 0) S.memSold.push(mid);
         S.memory = Math.max(0, S.memory - 10);
-        var pay = Math.round(800 * (S.pawnMul || 1));
+        var pay = Math.round(800 * (S.pawnMul || 1) * (M().pawnMul || 1)) + (M().pawnAdd || 0);
         gain(pay, { raw: true });
         S.credit = clamp(S.credit - 2, 0, 100);
         S.stats.memPawned = (S.stats.memPawned || 0) + 10;
@@ -1930,6 +2109,17 @@ window.CONTENT = {
 
   var ACTION_MAP = {};
   ACTIONS.forEach(function (a) { ACTION_MAP[a.id] = a; });
+
+  function previewFor(id) {
+    if (!S) return "";
+    if (id === "work") return "≈ +" + Math.round(CFG.workPay * (S.newsMul || 1) * M().workMul) + " 现金";
+    if (id === "rest") return "≈ +" + Math.max(1, Math.round(CFG.restHealth * (S.restMul || 1)) + M().restAdd) + " 健康";
+    if (id === "social") return "≈ +" + (5 + M().socialAdd) + "~" + (10 + M().socialAdd) + " 影响力";
+    if (id === "study") return "≈ -" + M().studyCost + " 现金";
+    if (id === "pawn") return "≈ +" + (Math.round(800 * (S.pawnMul || 1) * (M().pawnMul || 1)) + (M().pawnAdd || 0)) + " 现金";
+    if (id === "loan") return "≈ +1000 现金 / 债务 +" + CFG.loanDebt;
+    return "";
+  }
 
   /* ---------- 剧情 ---------- */
   function pushStory(scene) {
@@ -2008,6 +2198,12 @@ window.CONTENT = {
     if (!S.stats) S.stats = { actions: 0, investWin: 0, investLose: 0 };
     S.stats.dayActs = 0;
 
+    // 0. 今日异变 / 特殊日 / 天赋
+    computeMod(n);
+    S.dayStart = { cash: S.cash, health: S.health, memory: S.memory, entropy: S.entropy, debt: S.debt };
+    if (S.worldName) log("【今日异变】" + S.worldName + " — " + S.worldDesc, "event");
+    if (S.specialName) log("【特殊日】第 " + n + " 天 · " + S.specialName + " — " + S.specialDesc, "event");
+
     // 1. 熵税
     var tax = taxFor(n);
     S.lastTax = tax;
@@ -2061,28 +2257,43 @@ window.CONTENT = {
 
     // 6.5 今日小报（影响当日工价）
     if (C.headlines && C.headlines.length) {
-      var hl = C.headlines[Math.floor(Math.random() * C.headlines.length)];
-      S.news = hl.t;
-      S.newsMul = hl.m;
-      log("【晚报】" + hl.t, "news");
+      var hl = pickFresh("seenNews", C.headlines, function (x) { return x.t; });
+      if (hl) {
+        S.news = hl.t;
+        S.newsMul = hl.m;
+        log("【晚报】" + hl.t, "news");
+      }
     }
 
-    // 6.2 街角小事件
+    // 6.2 街角小事件（同一局不重复）
     if (C.events && C.events.length && Math.random() < 0.35) {
-      var ev = C.events[Math.floor(Math.random() * C.events.length)];
-      log("【街角】" + ev.t, "story");
-      applyEffect(ev.eff || {});
+      var ev = pickFresh("seenEvents", C.events, function (x) { return x.t; });
+      if (ev) {
+        log("【街角】" + ev.t, "story");
+        applyEffect(ev.eff || {});
+      }
     }
 
     // 6.3 窗口三号（每天一行）
     if (C.window3 && C.window3[n - 1]) log(C.window3[n - 1], "w3");
 
-    // 6.4 今日委托
+    // 6.4 今日委托：三选一，分类型
     S.contract = null;
+    S.contractOptions = null;
     if (C.contracts && C.contracts.length && Math.random() < 0.6) {
-      var ct = C.contracts[Math.floor(Math.random() * C.contracts.length)];
-      S.contract = { id: ct.id, text: ct.text, hint: ct.hint, done: false, failed: false };
-      log("【今日委托】" + ct.text + "（" + ct.hint + "）", "event");
+      var ctList = drawContracts(3);
+      if (ctList.length) {
+        S.contractOptions = ctList.map(function (c) {
+          return { id: c.id, text: c.text, hint: c.hint, type: ctype(c), rewardText: c.rewardText };
+        });
+        log("【今日委托】有 " + ctList.length + " 张单子等着你挑。", "event");
+      }
+    }
+
+    // 6.45 第 19 天预告
+    if (n >= 14 && n < 19 && S.seen.indexOf("auction2") < 0) {
+      if (S.cash < 5000) log("【提醒】第 19 天有名字拍卖，现金 ≥ 5000 才拍得下（还差 " + (5000 - Math.round(S.cash)) + "）", "sys");
+      else log("【提醒】第 19 天有名字拍卖，你现在的现金够拍。", "sys");
     }
 
     // 7. 随机事件（每 3 天）
@@ -2096,6 +2307,10 @@ window.CONTENT = {
 
     // 9. AP
     S.ap = apMax();
+
+    // 9.5 异变带来的当日增减
+    if (S.mod.entropyAdd > 0) { addEntropy(S.mod.entropyAdd); log("异变：熵 +" + S.mod.entropyAdd, "bad"); }
+    if (S.mod.memoryAdd) { addMemory(S.mod.memoryAdd); log("异变：记忆 " + (S.mod.memoryAdd > 0 ? "+" : "") + S.mod.memoryAdd, S.mod.memoryAdd > 0 ? "good" : "bad"); }
 
     checkDeath();
     checkCodex();
@@ -2162,6 +2377,7 @@ window.CONTENT = {
     S.pending = [];
     if (S.stats) S.stats.peakNet = Math.max(S.stats.peakNet || 0, netWorth());
     settleContract();
+    buildSummary();
     if (S.day >= CFG.days) { finish("三十日到期"); return; }
     startDay(S.day + 1);
     emit("day");
@@ -2192,12 +2408,87 @@ window.CONTENT = {
     try { ok = !!c.check(S.today || {}, S, api); } catch (e) { ok = false; }
     if (ok) {
       S.contract.done = true;
-      applyEffect(c.reward || {});
-      log("委托完成：+" + (c.rewardText || ""), "good");
+      var rw = c.reward || {};
+      var cmul = M().contractMul || 1;
+      if (cmul !== 1) {
+        var scaled = {};
+        for (var k in rw) {
+          scaled[k] = (typeof rw[k] === "number" && k !== "entropy") ? Math.round(rw[k] * cmul) : rw[k];
+        }
+        applyEffect(scaled);
+        log("委托完成：+" + (c.rewardText || "") + "（今日 ×" + cmul + "）", "good");
+      } else {
+        applyEffect(rw);
+        log("委托完成：+" + (c.rewardText || ""), "good");
+      }
     } else {
       S.contract.failed = true;
-      log("委托没完成。交易所把它那条画掉了。", "sys");
+      S.credit = clamp(S.credit - 5, 0, 100);
+      spend(200);
+      log("委托没完成：信用 -5，现金 -200。交易所把它那条画掉了。", "bad");
     }
+  }
+  function buildSummary() {
+    var d = S.dayStart || {};
+    S.lastSummary = {
+      day: S.day,
+      cash: Math.round(S.cash - (d.cash || 0)),
+      health: S.health - (d.health || 0),
+      memory: S.memory - (d.memory || 0),
+      entropy: S.entropy - (d.entropy || 0),
+      contract: S.contract ? (S.contract.done ? "done" : (S.contract.failed ? "failed" : "none")) : "none"
+    };
+  }
+  var CTYPE = { c_work3: "work", c_norest: "rest", c_spend: "spend", c_rich: "work",
+                c_black: "risk", c_challenge: "risk", c_study: "work", c_poor: "spend" };
+  function ctype(c) { return c.type || CTYPE[c.id] || "any"; }
+  function drawContracts(n) {
+    var out = [], used = {}, guard = 0;
+    while (out.length < n && guard++ < 80) {
+      var cand = (C.contracts || []).filter(function (c) {
+        if (used[ctype(c)]) return false;
+        for (var i = 0; i < out.length; i++) if (out[i].id === c.id) return false;
+        return true;
+      });
+      if (!cand.length) break;
+      var fresh = cand.filter(function (c) { return (S.seenContracts || []).indexOf(c.id) < 0; });
+      if (!fresh.length) { S.seenContracts = []; fresh = cand; }
+      var pick = fresh[Math.floor(Math.random() * fresh.length)];
+      out.push(pick);
+      used[ctype(pick)] = true;
+      if (!S.seenContracts) S.seenContracts = [];
+      S.seenContracts.push(pick.id);
+    }
+    return out;
+  }
+  function chooseContract(id) {
+    if (!S || S.over || !S.contractOptions) return false;
+    var hit = null;
+    for (var i = 0; i < S.contractOptions.length; i++) if (S.contractOptions[i].id === id) hit = S.contractOptions[i];
+    if (!hit) return false;
+    S.contract = { id: hit.id, text: hit.text, hint: hit.hint, done: false, failed: false };
+    S.contractOptions = null;
+    log("【今日委托】接下：" + hit.text + "（" + hit.hint + "）→ +" + hit.rewardText, "event");
+    save(); emit("change");
+    return true;
+  }
+  function applyTalent(id) {
+    var t = talentById(id);
+    if (!t || !S) return false;
+    if (!S.talents) S.talents = [];
+    S.talents.push(id);
+    S.pendingTalent = null;
+    if (!S.mod) computeMod(S.day);
+    addMod(t.mod);
+    log("天赋：【" + t.name + "】" + t.desc, "good");
+    return true;
+  }
+  function chooseTalent(id) {
+    if (!choice || choice.kind !== "talent") return false;
+    var ok = applyTalent(id);
+    choice = null;
+    save(); emit("change");
+    return ok;
   }
 
   /* ---------- 对外操作 ---------- */
@@ -2210,6 +2501,7 @@ window.CONTENT = {
     if (S.ap < a.cost) { log("行动点不足", "bad"); emit("change"); return false; }
     var res = a.run(input || {});
     if (res === "abort") { emit("change"); return false; }
+    S.lastSummary = null;
     S.ap -= a.cost;
     S.stats.actions++;
     S.stats.dayActs = (S.stats.dayActs || 0) + 1;
@@ -2221,6 +2513,7 @@ window.CONTENT = {
       else if (id === "challenge") S.today.challenge = (S.today.challenge || 0) + 1;
       else if (id === "social") S.today.social = (S.today.social || 0) + 1;
       else if (id === "study") S.today.study = (S.today.study || 0) + 1;
+      else if (id === "loan") S.today.loan = (S.today.loan || 0) + 1;
     }
     postAction();
     return true;
@@ -2231,6 +2524,7 @@ window.CONTENT = {
     if (!has(id)) return false;
     if (S.usedToday[id]) { log("今天已经用过了", "bad"); return false; }
     S.usedToday[id] = true;
+    S.lastSummary = null;
 
     if (id === "memoryCash") {
       var amt = Math.floor(input && input.amount || 0);
@@ -2264,7 +2558,9 @@ window.CONTENT = {
   function currentChoice() { return choice; }
   function resolveChoice(id) {
     if (!choice) return false;
+    var kind = choice.kind;
     choice = null;
+    if (kind === "talent") { applyTalent(id); save(); emit("change"); return true; }
     if (id) grantFragment(id);
     save();
     emit("change");
@@ -2409,6 +2705,9 @@ window.CONTENT = {
       fragments: [], pending: [], market: 1, crash: false,
       flags: {}, seen: [], log: [], over: false, endingId: null, endReason: "",
       usedToday: {}, stats: { actions: 0, investWin: 0, investLose: 0, memPawned: 0, dayActs: 0, peakNet: 0 },
+      talents: [], mod: null, pendingTalent: null, contractOptions: null,
+      worldId: "", worldName: "", worldDesc: "", specialId: 0, specialName: "", specialDesc: "",
+      seenEvents: [], seenContracts: [], seenNews: [], dayStart: null, lastSummary: null,
       memories: [], memSold: [], today: { actions: 0, work: 0, rest: 0, spend: 0, earn: 0, black: 0, challenge: 0, social: 0, study: 0 },
       contract: null,
       net: 0, lastTax: 0, lastReply: null
@@ -2418,6 +2717,13 @@ window.CONTENT = {
     log("你走进交易所。玻璃门在你身后合上，外面那座城市正在忘记自己是什么。", "story");
     if (o.name) log("身份：" + o.name + "。" + (o.desc || ""), "story");
     startDay(1);
+    var tpool = (C.talents || []).slice(), topts = [];
+    while (topts.length < 3 && tpool.length) topts.push(tpool.splice(Math.floor(Math.random() * tpool.length), 1)[0].id);
+    if (topts.length) {
+      S.pendingTalent = topts;
+      choice = { kind: "talent", source: "talent", options: topts, title: "开局天赋" };
+      save();
+    }
     emit("new");
   }
 
@@ -2441,11 +2747,21 @@ window.CONTENT = {
       if (!S.today) S.today = { actions: 0, work: 0, rest: 0, spend: 0, earn: 0, black: 0, challenge: 0, social: 0, study: 0 };
       if (!S.memories) S.memories = [];
       if (!S.memSold) S.memSold = [];
+      if (!S.talents) S.talents = [];
+      if (!S.seenEvents) S.seenEvents = [];
+      if (!S.seenContracts) S.seenContracts = [];
+      if (!S.seenNews) S.seenNews = [];
+      if (S.contractOptions === undefined) S.contractOptions = null;
+      if (!S.mod) { try { computeMod(S.day || 1); } catch (err) { S.mod = null; } }
       syncMemories(false);
       checkResonance();
       if (S.origin) lastOrigin = S.origin;
       choice = null; story = null; storyQueue = [];
       if (!S.over) checkStory();
+      if (!S.over && S.pendingTalent && S.pendingTalent.length && !(S.talents && S.talents.length)) {
+        story = null; storyQueue = [];
+        choice = { kind: "talent", source: "talent", options: S.pendingTalent, title: "开局天赋" };
+      }
       emit("load");
       return true;
     } catch (e) { return false; }
@@ -2469,13 +2785,36 @@ window.CONTENT = {
         else why = a.can();
         var d = a.desc;
         if (a.id === "pawn" && S.pawnMul && S.pawnMul !== 1) {
-          d = "每 10 记忆换 " + Math.round(800 * S.pawnMul) + " 现金 · 熵 +1";
+          d = "每 10 记忆换 " + Math.round(800 * S.pawnMul * (M().pawnMul || 1)) + " 现金 · 熵 +1";
         }
         return { id: a.id, name: a.name, cost: a.cost, desc: d, tag: a.tag,
-                 amount: !!a.amount, choice: !!a.choice, disabled: !!why, reason: why };
+                 amount: !!a.amount, choice: !!a.choice, disabled: !!why, reason: why,
+                 preview: previewFor(a.id) };
       });
     },
     doAction: doAction,
+    chooseContract: chooseContract,
+    chooseTalent: chooseTalent,
+    contractOptions: function () { return S && S.contractOptions ? S.contractOptions : null; },
+    worldInfo: function () {
+      if (!S) return null;
+      return { name: S.worldName || "", desc: S.worldDesc || "",
+               special: S.specialName || "", specialDesc: S.specialDesc || "" };
+    },
+    daySummary: function () { return S ? S.lastSummary : null; },
+    dayWarning: function () {
+      if (!S || S.over) return "";
+      if (S.day < 14 || S.day > 18) return "";
+      if (S.seen && S.seen.indexOf("auction2") >= 0) return "";
+      if (S.cash >= 5000) return "第 19 天 · 名字拍卖：现金已够（" + Math.round(S.cash) + " / 5000）";
+      return "第 19 天 · 名字拍卖：还差 " + (5000 - Math.round(S.cash)) + " 现金";
+    },
+    talentBook: function () {
+      var tl = (S && S.talents) ? S.talents : [];
+      return (C.talents || []).map(function (t) {
+        return { id: t.id, name: t.name, desc: t.desc, tag: t.tag, got: tl.indexOf(t.id) >= 0 };
+      });
+    },
     useFragment: useFragment,
     endDay: endDay,
     currentChoice: currentChoice,
@@ -2655,7 +2994,9 @@ window.CONTENT = {
 
     renderStats(S);
     renderNews(S);
+    renderWorld(S);
     renderContract(S);
+    renderSummary(S);
     renderFrags(S);
     renderMemoryBar(S);
     renderActions(S);
@@ -2684,7 +3025,6 @@ window.CONTENT = {
       ["信用", S.credit, ""],
       ["影响力", S.influence, ""],
       ["逆熵点", S.ep, ""],
-      ["熵值", S.entropy, S.entropy >= 7 ? "ent" : ""],
       ["债务", Math.round(S.debt), S.debt > 0 ? "warn" : ""],
       ["情报", S.intel, ""],
       ["市场", "×" + S.market.toFixed(2), ""]
@@ -2693,7 +3033,46 @@ window.CONTENT = {
     items.forEach(function (it) {
       html += '<div class="stat ' + it[2] + '"><div class="k">' + it[0] + '</div><div class="v">' + it[1] + "</div></div>";
     });
+    var ent = Math.min(S.entropy, C.config.entropyMax);
+    var pips = "";
+    for (var e = 0; e < C.config.entropyMax; e++) pips += '<span class="ent-pip' + (e < ent ? " on" : "") + '"></span>';
+    html += '<div class="ent-row"><span class="ent-l">熵</span><span class="ent-bar">' + pips +
+      '</span><span class="ent-n">' + ent + "/" + C.config.entropyMax + "</span></div>";
     $("stats").innerHTML = html;
+  }
+
+  /* 今日异变 / 特殊日 / 预告 */
+  function renderWorld(S) {
+    var el = $("worldbar");
+    if (!el) return;
+    var w = E.worldInfo();
+    var parts = [];
+    if (w && w.name) parts.push('<span class="wb-tag">异变</span><span class="wb-name">' + esc(w.name) +
+      '</span><span class="wb-desc">' + esc(w.desc) + "</span>");
+    if (w && w.special) parts.push('<span class="wb-tag sp">特殊日</span><span class="wb-name">' + esc(w.special) +
+      '</span><span class="wb-desc">' + esc(w.specialDesc) + "</span>");
+    var warn = E.dayWarning();
+    if (warn) parts.push('<span class="wb-warn">◎ ' + esc(warn) + "</span>");
+    el.innerHTML = parts.join("");
+    el.classList.toggle("hidden", !parts.length);
+  }
+
+  /* 日结小结 */
+  function renderSummary(S) {
+    var el = $("summary");
+    if (!el) return;
+    var s = E.daySummary();
+    if (!s) { el.classList.add("hidden"); el.innerHTML = ""; return; }
+    var d = function (v) { return (v > 0 ? "+" : "") + v; };
+    var k = function (v) { return v > 0 ? "up" : (v < 0 ? "down" : ""); };
+    var cs = s.contract === "done" ? "委托 ✓" : (s.contract === "failed" ? "委托 ✗" : "");
+    el.innerHTML = '<span class="sm-t">第 ' + s.day + " 天小结</span>" +
+      '<span class="sm-i ' + k(s.cash) + '">现金 ' + d(s.cash) + "</span>" +
+      '<span class="sm-i ' + k(s.health) + '">健康 ' + d(s.health) + "</span>" +
+      '<span class="sm-i ' + k(s.memory) + '">记忆 ' + d(s.memory) + "</span>" +
+      '<span class="sm-i ' + k(s.entropy) + '">熵 ' + d(s.entropy) + "</span>" +
+      (cs ? '<span class="sm-c">' + cs + "</span>" : "");
+    el.classList.remove("hidden");
   }
 
   function renderNews(S) {
@@ -2706,9 +3085,24 @@ window.CONTENT = {
     $("news-mul").textContent = (S.newsMul && S.newsMul !== 1) ? "工价 ×" + S.newsMul.toFixed(2) : "工价 ×1.00";
   }
 
+  var CTYPE_NAME = { work: "工作", spend: "支出", risk: "风险", restraint: "克制", social: "社交",
+                     rest: "休息", credit: "信用", any: "委托" };
   function renderContract(S) {
     var el = $("contract");
     if (!el) return;
+    var opts = E.contractOptions();
+    if (opts && opts.length) {
+      el.classList.remove("hidden");
+      var oh = '<div class="ct-head">今日委托 · 挑一张</div>';
+      opts.forEach(function (o) {
+        oh += '<button class="ct-opt" data-contract="' + o.id + '">' +
+          '<span class="ct-type">' + esc(CTYPE_NAME[o.type] || "委托") + "</span>" +
+          '<span class="ct-t">' + esc(o.text) + "</span>" +
+          '<span class="ct-h">' + esc(o.hint) + "　→ +" + esc(o.rewardText) + "</span></button>";
+      });
+      el.innerHTML = oh;
+      return;
+    }
     var c = S.contract;
     if (!c || c.done || c.failed) { el.classList.add("hidden"); el.textContent = ""; return; }
     el.classList.remove("hidden");
@@ -2746,6 +3140,7 @@ window.CONTENT = {
       html += '<button class="action" data-act="' + a.id + '"' + (a.disabled ? " disabled" : "") + ">" +
         '<span class="an">' + esc(a.name) + cost + "</span>" +
         '<span class="ad">' + esc(a.desc) + "</span>" +
+        (a.preview && !a.disabled ? '<span class="apv">' + esc(a.preview) + "</span>" : "") +
         (a.disabled && a.reason ? '<span class="ar">' + esc(a.reason) + "</span>" : "") +
         "</button>";
     });
@@ -2803,6 +3198,30 @@ window.CONTENT = {
     html += "</div>";
     openModal(html);
     modalState = { type: "story", key: sc.id };
+  }
+
+  function openTalentChoice(ch) {
+    var html = '<div class="modal-kicker">开局</div><h2>选一个天赋</h2>' +
+      '<p>它会跟着你走完这三十天。</p><div class="choices">';
+    var list = C.talents || [];
+    (ch.options || []).forEach(function (id) {
+      var t = null;
+      for (var i = 0; i < list.length; i++) if (list[i].id === id) t = list[i];
+      if (!t) return;
+      html += '<button class="choice" data-talent="' + id + '"><strong>' + esc(t.name) + "</strong>" +
+        '<span class="req" style="color:#7d8fa3">' + esc(t.desc) + "</span></button>";
+    });
+    html += "</div>";
+    openModal(html);
+    modalState = { type: "talent", key: "talent" };
+  }
+
+  function floatNum(txt, cls) {
+    var d = document.createElement("div");
+    d.className = "float-num " + (cls || "");
+    d.textContent = txt;
+    document.body.appendChild(d);
+    setTimeout(function () { if (d.parentNode) d.parentNode.removeChild(d); }, 1100);
   }
 
   function openFragmentChoice(ch) {
@@ -3095,7 +3514,9 @@ window.CONTENT = {
       return;
     }
     var ch = E.currentChoice();
-    if (ch && modalState.type !== "choice") openFragmentChoice(ch);
+    if (ch && ch.kind === "talent") {
+      if (modalState.type !== "talent") openTalentChoice(ch);
+    } else if (ch && modalState.type !== "choice") openFragmentChoice(ch);
   }
 
   /* ================= 事件 ================= */
@@ -3150,6 +3571,19 @@ window.CONTENT = {
       sync();
       return;
     }
+    // 天赋三选一
+    if (t.dataset && t.dataset.talent) {
+      closeModal();
+      E.chooseTalent(t.dataset.talent);
+      sync();
+      return;
+    }
+    // 今日委托三选一
+    if (t.dataset && t.dataset.contract) {
+      E.chooseContract(t.dataset.contract);
+      sync();
+      return;
+    }
     // 剧情选项
     if (t.dataset && t.dataset.choice !== undefined) {
       var idx = Number(t.dataset.choice);
@@ -3191,7 +3625,14 @@ window.CONTENT = {
         return;
       }
       if (id === "pawn") { openMemoryPawn(); return; }
+      var cash0 = S.cash, hp0 = S.health;
       E.doAction(id, {});
+      var s1 = E.state();
+      if (s1) {
+        var dc = Math.round(s1.cash - cash0), dh = s1.health - hp0;
+        if (dc) floatNum((dc > 0 ? "+" : "") + dc + " 现金", dc > 0 ? "up" : "down");
+        if (dh) floatNum((dh > 0 ? "+" : "") + dh + " 健康", dh > 0 ? "up" : "down");
+      }
       sync();
       return;
     }
@@ -3285,7 +3726,7 @@ window.CONTENT = {
     $("btn-again").onclick = function () { pendingSlot = E.currentSlot(); openOriginPicker(); };
     $("btn-to-title").onclick = function () { syncTitle(); showScreen("title"); };
     $("modal-root").onclick = function (ev) {
-      if (ev.target === $("modal-root") && modalState.type !== "story" && modalState.type !== "choice") closeModal();
+      if (ev.target === $("modal-root") && modalState.type !== "story" && modalState.type !== "choice" && modalState.type !== "talent") closeModal();
     };
 
     E.subscribe(function () {
